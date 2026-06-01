@@ -1,0 +1,4 @@
+{
+  "Default NetSuite customer if missing on Square order": "process.env[DEFAULT_CUSTOMER.ID]",
+  "NetSuite item to track order lines when no matching SKU is found in NetSuite": "process.env[SQUARE_NS.NOSKU_TRACK_ITEM_ID]"
+}

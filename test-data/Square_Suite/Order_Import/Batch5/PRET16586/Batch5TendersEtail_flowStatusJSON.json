@@ -1,0 +1,5 @@
+{
+  "Square Order to NetSuite Cash Sale": true,
+  "Square Tenders to NetSuite Payments": true,
+  "Square Customer to NetSuite Customer": false
+}

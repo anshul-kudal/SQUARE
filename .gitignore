@@ -1,0 +1,14 @@
+node_modules/*
+dist/*
+env/*
+!env/.gitkeep
+!env/*.example
+report/*
+!report/.gitkeep
+.DS_Store
+.npmrc
+.cache/*
+.test-state/*
+.cursor/*
+logs/*
+config/squareCatalogIds.json

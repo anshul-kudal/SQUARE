@@ -1,0 +1,1619 @@
+{
+  "testData": [
+    {
+      "suite": "Batch3 | Square Order Import — on-demand, settings, rounding, tips",
+      "suite_title": "Batch3 | Square Order Import — on-demand, settings, rounding, tips",
+      "storeName": "store1",
+      "interactions": [
+        {
+          "test": "Batch3OnDemandFive",
+          "test_title": "Batch3OnDemandFive [Batch3][OrderImport][PRE-T16593] - On-demand sync for 5 orders",
+          "pre_request": [
+            {
+              "request": {
+                "method": "GET",
+                "path": "/integrations",
+                "filterKey": "name : Square - NetSuite",
+                "store_PRET16593integrationID": "_id"
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows",
+                "filterKey": "name : Square Order to NetSuite Cash Sale",
+                "storeName": "store1",
+                "store_PRET16593flowId1": "_id",
+                "getFlowsByIntegrationId": true
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16593integrationID}}/settings/persistSettings",
+                "settingsMethod": "updateflowStatusThroughAPI",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16593/Batch3OnDemandFive_flowStatusJSON.json"
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16593integrationID}}/settings/persistSettings",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16593/Batch3OnDemandFive_updateSettings0.json",
+                "settingsMethod": "updateSettings"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16593/Batch3OnDemandFive_createOrder.json",
+                "dataCreationMethod": "createSquareOrderFiveOnDemand",
+                "orderKeyPrefix": "PRET16593",
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16593integrationID}}/settings/persistSettings",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16593/Batch3OnDemandFive_updateSettings1.json",
+                "settingsMethod": "updateSettings"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "squareStaticDelay",
+                "delayMs": 10000,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16593",
+                "flowIdleMaxWaitSec": 360,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareOrderFlowWithRetry",
+                "orderKeyPrefix": "PRET16593",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 360,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16593flowId1}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 180
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Order_Import/Batch3/PRET16593/Batch3OnDemandFive_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16593",
+                "flowIdleMaxWaitSec": 360,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "squareStaticDelay",
+                "delayMs": 5000,
+                "skipThePreRequestValidation": true
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "path": "/connections/process.env[CONNECTIONS.NETSUITE]/proxy"
+          },
+          "response": {
+            "status": 200,
+            "time": 10000,
+            "dataValidationMethod": "verifyCashsaleDataFromNetsuite",
+            "body": "/test-data/Square_Suite/Order_Import/Batch3/PRET16593/Batch3OnDemandFive_expectedResponse1.json",
+            "uniqueValue": "{{PRET16593squareOrderId}}",
+            "secondaryValue": "false"
+          }
+        },
+        {
+          "test": "Batch3CartDiscTip",
+          "test_title": "Batch3CartDiscTip [Batch3][OrderImport][PRE-T16589] - Cart discount + tip — zero tax variance",
+          "pre_request": [
+            {
+              "request": {
+                "method": "GET",
+                "path": "/integrations",
+                "filterKey": "name : Square - NetSuite",
+                "store_PRET16589integrationID": "_id"
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows",
+                "filterKey": "name : Square Order to NetSuite Cash Sale",
+                "storeName": "store1",
+                "store_PRET16589flowId1": "_id",
+                "getFlowsByIntegrationId": true
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16589integrationID}}/settings/persistSettings",
+                "settingsMethod": "updateflowStatusThroughAPI",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16589/Batch3CartDiscTip_flowStatusJSON.json"
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16589integrationID}}/settings/persistSettings",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16589/Batch3CartDiscTip_updateSettings0.json",
+                "settingsMethod": "updateSettings"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16589/Batch3CartDiscTip_createOrder.json",
+                "dataCreationMethod": "createSquareOrderCartDiscTip",
+                "orderKeyPrefix": "PRET16589",
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16589integrationID}}/settings/persistSettings",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16589/Batch3CartDiscTip_updateSettings1.json",
+                "settingsMethod": "updateSettings"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "squareStaticDelay",
+                "delayMs": 10000,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16589",
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareOrderFlowWithRetry",
+                "orderKeyPrefix": "PRET16589",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16589flowId1}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Order_Import/Batch3/PRET16589/Batch3CartDiscTip_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16589",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "squareStaticDelay",
+                "delayMs": 5000,
+                "skipThePreRequestValidation": true
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "path": "/connections/process.env[CONNECTIONS.NETSUITE]/proxy"
+          },
+          "response": {
+            "status": 200,
+            "time": 10000,
+            "dataValidationMethod": "verifyCashsaleDataFromNetsuite",
+            "body": "/test-data/Square_Suite/Order_Import/Batch3/PRET16589/Batch3CartDiscTip_expectedResponse1.json",
+            "uniqueValue": "{{PRET16589squareOrderId}}",
+            "secondaryValue": "false"
+          }
+        },
+        {
+          "test": "Batch3RoundVarUp",
+          "test_title": "Batch3RoundVarUp [Batch3][OrderImport][PRE-T16520] - Price round up $19.49 — zero variance",
+          "pre_request": [
+            {
+              "request": {
+                "method": "GET",
+                "path": "/integrations",
+                "filterKey": "name : Square - NetSuite",
+                "store_PRET16520integrationID": "_id"
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows",
+                "filterKey": "name : Square Order to NetSuite Cash Sale",
+                "storeName": "store1",
+                "store_PRET16520flowId1": "_id",
+                "getFlowsByIntegrationId": true
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16520integrationID}}/settings/persistSettings",
+                "settingsMethod": "updateflowStatusThroughAPI",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16520/Batch3RoundVarUp_flowStatusJSON.json"
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16520integrationID}}/settings/persistSettings",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16520/Batch3RoundVarUp_updateSettings0.json",
+                "settingsMethod": "updateSettings"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16520/Batch3RoundVarUp_createOrder.json",
+                "dataCreationMethod": "createSquareOrderRoundPriceUp",
+                "orderKeyPrefix": "PRET16520",
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16520integrationID}}/settings/persistSettings",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16520/Batch3RoundVarUp_updateSettings1.json",
+                "settingsMethod": "updateSettings"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "squareStaticDelay",
+                "delayMs": 10000,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16520",
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareOrderFlowWithRetry",
+                "orderKeyPrefix": "PRET16520",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16520flowId1}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Order_Import/Batch3/PRET16520/Batch3RoundVarUp_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16520",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "squareStaticDelay",
+                "delayMs": 5000,
+                "skipThePreRequestValidation": true
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "path": "/connections/process.env[CONNECTIONS.NETSUITE]/proxy"
+          },
+          "response": {
+            "status": 200,
+            "time": 10000,
+            "dataValidationMethod": "verifyCashsaleDataFromNetsuite",
+            "body": "/test-data/Square_Suite/Order_Import/Batch3/PRET16520/Batch3RoundVarUp_expectedResponse1.json",
+            "uniqueValue": "{{PRET16520squareOrderId}}",
+            "secondaryValue": "false"
+          }
+        },
+        {
+          "test": "Batch3RoundVarDown",
+          "test_title": "Batch3RoundVarDown [Batch3][OrderImport][PRE-T16521] - Price round down $19.44 — zero variance",
+          "pre_request": [
+            {
+              "request": {
+                "method": "GET",
+                "path": "/integrations",
+                "filterKey": "name : Square - NetSuite",
+                "store_PRET16521integrationID": "_id"
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows",
+                "filterKey": "name : Square Order to NetSuite Cash Sale",
+                "storeName": "store1",
+                "store_PRET16521flowId1": "_id",
+                "getFlowsByIntegrationId": true
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16521integrationID}}/settings/persistSettings",
+                "settingsMethod": "updateflowStatusThroughAPI",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16521/Batch3RoundVarDown_flowStatusJSON.json"
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16521integrationID}}/settings/persistSettings",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16521/Batch3RoundVarDown_updateSettings0.json",
+                "settingsMethod": "updateSettings"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16521/Batch3RoundVarDown_createOrder.json",
+                "dataCreationMethod": "createSquareOrderRoundPriceDown",
+                "orderKeyPrefix": "PRET16521",
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16521integrationID}}/settings/persistSettings",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16521/Batch3RoundVarDown_updateSettings1.json",
+                "settingsMethod": "updateSettings"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "squareStaticDelay",
+                "delayMs": 10000,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16521",
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareOrderFlowWithRetry",
+                "orderKeyPrefix": "PRET16521",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16521flowId1}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Order_Import/Batch3/PRET16521/Batch3RoundVarDown_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16521",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "squareStaticDelay",
+                "delayMs": 5000,
+                "skipThePreRequestValidation": true
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "path": "/connections/process.env[CONNECTIONS.NETSUITE]/proxy"
+          },
+          "response": {
+            "status": 200,
+            "time": 10000,
+            "dataValidationMethod": "verifyCashsaleDataFromNetsuite",
+            "body": "/test-data/Square_Suite/Order_Import/Batch3/PRET16521/Batch3RoundVarDown_expectedResponse1.json",
+            "uniqueValue": "{{PRET16521squareOrderId}}",
+            "secondaryValue": "false"
+          }
+        },
+        {
+          "test": "Batch3DefaultCustAddAll",
+          "test_title": "Batch3DefaultCustAddAll [Batch3][OrderImport][PRE-T16498] - Default customer + add all orders checked",
+          "pre_request": [
+            {
+              "request": {
+                "method": "GET",
+                "path": "/integrations",
+                "filterKey": "name : Square - NetSuite",
+                "store_PRET16498integrationID": "_id"
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows",
+                "filterKey": "name : Square Order to NetSuite Cash Sale",
+                "storeName": "store1",
+                "store_PRET16498flowId1": "_id",
+                "getFlowsByIntegrationId": true
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16498integrationID}}/settings/persistSettings",
+                "settingsMethod": "updateflowStatusThroughAPI",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16498/Batch3DefaultCustAddAll_flowStatusJSON.json"
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16498integrationID}}/settings/persistSettings",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16498/Batch3DefaultCustAddAll_updateSettings0.json",
+                "settingsMethod": "updateSettings"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16498/Batch3DefaultCustAddAll_createOrder.json",
+                "dataCreationMethod": "createSquareOrderSingleLineBase",
+                "orderKeyPrefix": "PRET16498",
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16498integrationID}}/settings/persistSettings",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16498/Batch3DefaultCustAddAll_updateSettings1.json",
+                "settingsMethod": "updateSettings"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "squareStaticDelay",
+                "delayMs": 10000,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16498",
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareOrderFlowWithRetry",
+                "orderKeyPrefix": "PRET16498",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16498flowId1}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Order_Import/Batch3/PRET16498/Batch3DefaultCustAddAll_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16498",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "squareStaticDelay",
+                "delayMs": 5000,
+                "skipThePreRequestValidation": true
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "path": "/connections/process.env[CONNECTIONS.NETSUITE]/proxy"
+          },
+          "response": {
+            "status": 200,
+            "time": 10000,
+            "dataValidationMethod": "verifyCashsaleDataFromNetsuite",
+            "body": "/test-data/Square_Suite/Order_Import/Batch3/PRET16498/Batch3DefaultCustAddAll_expectedResponse1.json",
+            "uniqueValue": "{{PRET16498squareOrderId}}",
+            "secondaryValue": "false"
+          }
+        },
+        {
+          "test": "Batch3DefaultCustNoAddAll",
+          "test_title": "Batch3DefaultCustNoAddAll [Batch3][OrderImport][PRE-T16497] - Default customer + add all orders unchecked",
+          "pre_request": [
+            {
+              "request": {
+                "method": "GET",
+                "path": "/integrations",
+                "filterKey": "name : Square - NetSuite",
+                "store_PRET16497integrationID": "_id"
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows",
+                "filterKey": "name : Square Order to NetSuite Cash Sale",
+                "storeName": "store1",
+                "store_PRET16497flowId1": "_id",
+                "getFlowsByIntegrationId": true
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16497integrationID}}/settings/persistSettings",
+                "settingsMethod": "updateflowStatusThroughAPI",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16497/Batch3DefaultCustNoAddAll_flowStatusJSON.json"
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16497integrationID}}/settings/persistSettings",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16497/Batch3DefaultCustNoAddAll_updateSettings0.json",
+                "settingsMethod": "updateSettings"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16497/Batch3DefaultCustNoAddAll_createOrder.json",
+                "dataCreationMethod": "createSquareOrderSingleLineBase",
+                "orderKeyPrefix": "PRET16497",
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16497integrationID}}/settings/persistSettings",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16497/Batch3DefaultCustNoAddAll_updateSettings1.json",
+                "settingsMethod": "updateSettings"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "squareStaticDelay",
+                "delayMs": 10000,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16497",
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareOrderFlowWithRetry",
+                "orderKeyPrefix": "PRET16497",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16497flowId1}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Order_Import/Batch3/PRET16497/Batch3DefaultCustNoAddAll_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16497",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "squareStaticDelay",
+                "delayMs": 5000,
+                "skipThePreRequestValidation": true
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "path": "/connections/process.env[CONNECTIONS.NETSUITE]/proxy"
+          },
+          "response": {
+            "status": 200,
+            "time": 10000,
+            "dataValidationMethod": "verifyCashsaleDataFromNetsuite",
+            "body": "/test-data/Square_Suite/Order_Import/Batch3/PRET16497/Batch3DefaultCustNoAddAll_expectedResponse1.json",
+            "uniqueValue": "{{PRET16497squareOrderId}}",
+            "secondaryValue": "false"
+          }
+        },
+        {
+          "test": "Batch3SingleOndemand",
+          "test_title": "Batch3SingleOndemand [Batch3][OrderImport][PRE-T16518] - On-demand single order import",
+          "pre_request": [
+            {
+              "request": {
+                "method": "GET",
+                "path": "/integrations",
+                "filterKey": "name : Square - NetSuite",
+                "store_PRET16518integrationID": "_id"
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows",
+                "filterKey": "name : Square Order to NetSuite Cash Sale",
+                "storeName": "store1",
+                "store_PRET16518flowId1": "_id",
+                "getFlowsByIntegrationId": true
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16518integrationID}}/settings/persistSettings",
+                "settingsMethod": "updateflowStatusThroughAPI",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16518/Batch3SingleOndemand_flowStatusJSON.json"
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16518integrationID}}/settings/persistSettings",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16518/Batch3SingleOndemand_updateSettings0.json",
+                "settingsMethod": "updateSettings"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16518/Batch3SingleOndemand_createOrder.json",
+                "dataCreationMethod": "createSquareOrderSingleLineBase",
+                "orderKeyPrefix": "PRET16518",
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16518integrationID}}/settings/persistSettings",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16518/Batch3SingleOndemand_updateSettings1.json",
+                "settingsMethod": "updateSettings"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "squareStaticDelay",
+                "delayMs": 10000,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16518",
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareOrderFlowWithRetry",
+                "orderKeyPrefix": "PRET16518",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16518flowId1}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Order_Import/Batch3/PRET16518/Batch3SingleOndemand_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16518",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "squareStaticDelay",
+                "delayMs": 5000,
+                "skipThePreRequestValidation": true
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "path": "/connections/process.env[CONNECTIONS.NETSUITE]/proxy"
+          },
+          "response": {
+            "status": 200,
+            "time": 10000,
+            "dataValidationMethod": "verifyCashsaleDataFromNetsuite",
+            "body": "/test-data/Square_Suite/Order_Import/Batch3/PRET16518/Batch3SingleOndemand_expectedResponse1.json",
+            "uniqueValue": "{{PRET16518squareOrderId}}",
+            "secondaryValue": "false"
+          }
+        },
+        {
+          "test": "Batch3TipNotTaxableLine",
+          "test_title": "Batch3TipNotTaxableLine [Batch3][OrderImport][PRE-T16597] - Tip imported with line-level tax — zero variance",
+          "pre_request": [
+            {
+              "request": {
+                "method": "GET",
+                "path": "/integrations",
+                "filterKey": "name : Square - NetSuite",
+                "store_PRET16597integrationID": "_id"
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows",
+                "filterKey": "name : Square Order to NetSuite Cash Sale",
+                "storeName": "store1",
+                "store_PRET16597flowId1": "_id",
+                "getFlowsByIntegrationId": true
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16597integrationID}}/settings/persistSettings",
+                "settingsMethod": "updateflowStatusThroughAPI",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16597/Batch3TipNotTaxableLine_flowStatusJSON.json"
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16597integrationID}}/settings/persistSettings",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16597/Batch3TipNotTaxableLine_updateSettings0.json",
+                "settingsMethod": "updateSettings"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16597/Batch3TipNotTaxableLine_createOrder.json",
+                "dataCreationMethod": "createSquareOrderTipLineLevel",
+                "orderKeyPrefix": "PRET16597",
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16597integrationID}}/settings/persistSettings",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16597/Batch3TipNotTaxableLine_updateSettings1.json",
+                "settingsMethod": "updateSettings"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "squareStaticDelay",
+                "delayMs": 10000,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16597",
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareOrderFlowWithRetry",
+                "orderKeyPrefix": "PRET16597",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16597flowId1}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Order_Import/Batch3/PRET16597/Batch3TipNotTaxableLine_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16597",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "squareStaticDelay",
+                "delayMs": 5000,
+                "skipThePreRequestValidation": true
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "path": "/connections/process.env[CONNECTIONS.NETSUITE]/proxy"
+          },
+          "response": {
+            "status": 200,
+            "time": 10000,
+            "dataValidationMethod": "verifyCashsaleDataFromNetsuite",
+            "body": "/test-data/Square_Suite/Order_Import/Batch3/PRET16597/Batch3TipNotTaxableLine_expectedResponse1.json",
+            "uniqueValue": "{{PRET16597squareOrderId}}",
+            "secondaryValue": "false"
+          }
+        },
+        {
+          "test": "Batch3TipNotTaxableBody",
+          "test_title": "Batch3TipNotTaxableBody [Batch3][OrderImport][PRE-T16598] - Tip with body-level tax setting — zero variance",
+          "pre_request": [
+            {
+              "request": {
+                "method": "GET",
+                "path": "/integrations",
+                "filterKey": "name : Square - NetSuite",
+                "store_PRET16598integrationID": "_id"
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows",
+                "filterKey": "name : Square Order to NetSuite Cash Sale",
+                "storeName": "store1",
+                "store_PRET16598flowId1": "_id",
+                "getFlowsByIntegrationId": true
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16598integrationID}}/settings/persistSettings",
+                "settingsMethod": "updateflowStatusThroughAPI",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16598/Batch3TipNotTaxableBody_flowStatusJSON.json"
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16598integrationID}}/settings/persistSettings",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16598/Batch3TipNotTaxableBody_updateSettings0.json",
+                "settingsMethod": "updateSettings"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16598/Batch3TipNotTaxableBody_createOrder.json",
+                "dataCreationMethod": "createSquareOrderTipLineLevel",
+                "orderKeyPrefix": "PRET16598",
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16598integrationID}}/settings/persistSettings",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16598/Batch3TipNotTaxableBody_updateSettings1.json",
+                "settingsMethod": "updateSettings"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "squareStaticDelay",
+                "delayMs": 10000,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16598",
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareOrderFlowWithRetry",
+                "orderKeyPrefix": "PRET16598",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16598flowId1}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Order_Import/Batch3/PRET16598/Batch3TipNotTaxableBody_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16598",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "squareStaticDelay",
+                "delayMs": 5000,
+                "skipThePreRequestValidation": true
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "path": "/connections/process.env[CONNECTIONS.NETSUITE]/proxy"
+          },
+          "response": {
+            "status": 200,
+            "time": 10000,
+            "dataValidationMethod": "verifyCashsaleDataFromNetsuite",
+            "body": "/test-data/Square_Suite/Order_Import/Batch3/PRET16598/Batch3TipNotTaxableBody_expectedResponse1.json",
+            "uniqueValue": "{{PRET16598squareOrderId}}",
+            "secondaryValue": "false"
+          }
+        },
+        {
+          "test": "Batch3TipNoSetting",
+          "test_title": "Batch3TipNoSetting [Batch3][OrderImport][PRE-T16600] - Tip without tip item setting — zero variance",
+          "pre_request": [
+            {
+              "request": {
+                "method": "GET",
+                "path": "/integrations",
+                "filterKey": "name : Square - NetSuite",
+                "store_PRET16600integrationID": "_id"
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows",
+                "filterKey": "name : Square Order to NetSuite Cash Sale",
+                "storeName": "store1",
+                "store_PRET16600flowId1": "_id",
+                "getFlowsByIntegrationId": true
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16600integrationID}}/settings/persistSettings",
+                "settingsMethod": "updateflowStatusThroughAPI",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16600/Batch3TipNoSetting_flowStatusJSON.json"
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16600integrationID}}/settings/persistSettings",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16600/Batch3TipNoSetting_updateSettings0.json",
+                "settingsMethod": "updateSettings"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16600/Batch3TipNoSetting_createOrder.json",
+                "dataCreationMethod": "createSquareOrderTipLineLevel",
+                "orderKeyPrefix": "PRET16600",
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16600integrationID}}/settings/persistSettings",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16600/Batch3TipNoSetting_updateSettings1.json",
+                "settingsMethod": "updateSettings"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "squareStaticDelay",
+                "delayMs": 10000,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16600",
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareOrderFlowWithRetry",
+                "orderKeyPrefix": "PRET16600",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16600flowId1}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Order_Import/Batch3/PRET16600/Batch3TipNoSetting_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16600",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "squareStaticDelay",
+                "delayMs": 5000,
+                "skipThePreRequestValidation": true
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "path": "/connections/process.env[CONNECTIONS.NETSUITE]/proxy"
+          },
+          "response": {
+            "status": 200,
+            "time": 10000,
+            "dataValidationMethod": "verifyCashsaleDataFromNetsuite",
+            "body": "/test-data/Square_Suite/Order_Import/Batch3/PRET16600/Batch3TipNoSetting_expectedResponse1.json",
+            "uniqueValue": "{{PRET16600squareOrderId}}",
+            "secondaryValue": "false"
+          }
+        },
+        {
+          "test": "Batch3OndemandSuccess",
+          "test_title": "Batch3OndemandSuccess [Batch3][OrderImport][PRE-T16515] - On-demand order successfully imports to NS cash sale",
+          "pre_request": [
+            {
+              "request": {
+                "method": "GET",
+                "path": "/integrations",
+                "filterKey": "name : Square - NetSuite",
+                "store_PRET16515integrationID": "_id"
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows",
+                "filterKey": "name : Square Order to NetSuite Cash Sale",
+                "storeName": "store1",
+                "store_PRET16515flowId1": "_id",
+                "getFlowsByIntegrationId": true
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16515integrationID}}/settings/persistSettings",
+                "settingsMethod": "updateflowStatusThroughAPI",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16515/Batch3OndemandSuccess_flowStatusJSON.json"
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16515integrationID}}/settings/persistSettings",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16515/Batch3OndemandSuccess_updateSettings0.json",
+                "settingsMethod": "updateSettings"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16515/Batch3OndemandSuccess_createOrder.json",
+                "dataCreationMethod": "createSquareOrderSingleLineBase",
+                "orderKeyPrefix": "PRET16515",
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16515integrationID}}/settings/persistSettings",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16515/Batch3OndemandSuccess_updateSettings1.json",
+                "settingsMethod": "updateSettings"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "squareStaticDelay",
+                "delayMs": 10000,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16515",
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareOrderFlowWithRetry",
+                "orderKeyPrefix": "PRET16515",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16515flowId1}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Order_Import/Batch3/PRET16515/Batch3OndemandSuccess_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16515",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "squareStaticDelay",
+                "delayMs": 5000,
+                "skipThePreRequestValidation": true
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "path": "/connections/process.env[CONNECTIONS.NETSUITE]/proxy"
+          },
+          "response": {
+            "status": 200,
+            "time": 10000,
+            "dataValidationMethod": "verifyCashsaleDataFromNetsuite",
+            "body": "/test-data/Square_Suite/Order_Import/Batch3/PRET16515/Batch3OndemandSuccess_expectedResponse1.json",
+            "uniqueValue": "{{PRET16515squareOrderId}}",
+            "secondaryValue": "false"
+          }
+        },
+        {
+          "test": "Batch3TendersDisabled",
+          "test_title": "Batch3TendersDisabled [Batch3][OrderImport][PRE-T16504] - Order import with customer/tender flows disabled",
+          "pre_request": [
+            {
+              "request": {
+                "method": "GET",
+                "path": "/integrations",
+                "filterKey": "name : Square - NetSuite",
+                "store_PRET16504integrationID": "_id"
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows",
+                "filterKey": "name : Square Order to NetSuite Cash Sale",
+                "storeName": "store1",
+                "store_PRET16504flowId1": "_id",
+                "getFlowsByIntegrationId": true
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16504integrationID}}/settings/persistSettings",
+                "settingsMethod": "updateflowStatusThroughAPI",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16504/Batch3TendersDisabled_flowStatusJSON.json"
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16504integrationID}}/settings/persistSettings",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16504/Batch3TendersDisabled_updateSettings0.json",
+                "settingsMethod": "updateSettings"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16504/Batch3TendersDisabled_createOrder.json",
+                "dataCreationMethod": "createSquareOrderSingleLineBase",
+                "orderKeyPrefix": "PRET16504",
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "PUT",
+                "path": "/integrations/{{PRET16504integrationID}}/settings/persistSettings",
+                "payload": "/test-data/Square_Suite/Order_Import/Batch3/PRET16504/Batch3TendersDisabled_updateSettings1.json",
+                "settingsMethod": "updateSettings"
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "squareStaticDelay",
+                "delayMs": 10000,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16504",
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareOrderFlowWithRetry",
+                "orderKeyPrefix": "PRET16504",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16504flowId1}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Order_Import/Batch3/PRET16504/Batch3TendersDisabled_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16504",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "squareStaticDelay",
+                "delayMs": 5000,
+                "skipThePreRequestValidation": true
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "path": "/connections/process.env[CONNECTIONS.NETSUITE]/proxy"
+          },
+          "response": {
+            "status": 200,
+            "time": 10000,
+            "dataValidationMethod": "verifyCashsaleDataFromNetsuite",
+            "body": "/test-data/Square_Suite/Order_Import/Batch3/PRET16504/Batch3TendersDisabled_expectedResponse1.json",
+            "uniqueValue": "{{PRET16504squareOrderId}}",
+            "secondaryValue": "false"
+          }
+        }
+      ]
+    }
+  ]
+}

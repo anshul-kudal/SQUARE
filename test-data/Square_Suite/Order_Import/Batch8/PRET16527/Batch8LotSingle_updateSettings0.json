@@ -1,0 +1,4 @@
+{
+  "Default NetSuite customer if missing on Square order": "process.env[DEFAULT_CUSTOMER.ID]",
+  "Auto-assign inventory detail to Lot Numbered/Serialized items": true
+}

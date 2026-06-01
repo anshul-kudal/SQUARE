@@ -1,0 +1,6 @@
+{
+  "Default NetSuite customer if missing on Square order": "process.env[DEFAULT_CUSTOMER.ID]",
+  "How would you like to bring sales tax into NetSuite?": "Add total tax against a single line item on the order",
+  "Per-line taxes on transaction enabled in NetSuite": true,
+  "Bring Square line level discounts into NetSuite as": "Adjustments to item list price"
+}

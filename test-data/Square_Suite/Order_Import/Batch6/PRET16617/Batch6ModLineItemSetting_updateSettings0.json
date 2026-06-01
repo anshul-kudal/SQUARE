@@ -1,0 +1,5 @@
+{
+  "Default NetSuite customer if missing on Square order": "process.env[DEFAULT_CUSTOMER.ID]",
+  "Sync Square product modifier price to NetSuite as": "New line below the original line (recommended)",
+  "NetSuite item to track product modifier price as a line item": "57176"
+}

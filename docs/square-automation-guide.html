@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Square E2E Automation — Team Guide</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+:root{--bg:#0b1020;--surface:#151d2e;--surface2:#1c2740;--text:#e8edf5;--muted:#93a4bc;--accent:#5b9cf5;--pass:#34d399;--fail:#f87171;--warn:#fbbf24;--border:#2a3650}
+*{box-sizing:border-box}body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+header{background:linear-gradient(120deg,#1a3a6b,#0b1020);padding:2.5rem 2rem;border-bottom:1px solid var(--border)}
+header h1{margin:0 0 .5rem;font-size:2rem}header p{color:var(--muted);max-width:900px}
+nav{position:sticky;top:0;background:rgba(11,16,32,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:.75rem 2rem;display:flex;flex-wrap:wrap;gap:.5rem 1rem;z-index:10}
+nav a{color:var(--accent);text-decoration:none;font-size:.9rem}
+main{max-width:1200px;margin:0 auto;padding:2rem}
+section{margin-bottom:3rem}
+h2{font-size:1.5rem;border-bottom:1px solid var(--border);padding-bottom:.5rem;margin-top:2.5rem}
+h3{color:var(--accent);margin-top:1.5rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin:1rem 0}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem}
+.card .v{font-size:1.6rem;font-weight:700}.card .l{font-size:.75rem;color:var(--muted);text-transform:uppercase}
+table{width:100%;border-collapse:collapse;font-size:.88rem;margin:1rem 0}
+th,td{border:1px solid var(--border);padding:.55rem .65rem;text-align:left;vertical-align:top}
+th{background:var(--surface2)}code,.mono{font-family:ui-monospace,monospace;font-size:.85em;background:var(--surface2);padding:.1em .35em;border-radius:4px}
+pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;overflow:auto;font-size:.82rem}
+.status-DONE,.status-STABLE{color:var(--pass)}.status-IN\ PROGRESS{color:var(--warn)}.status-NOT\ STARTED{color:var(--muted)}
+.tree{font-family:ui-monospace,monospace;font-size:.82rem;line-height:1.45;background:var(--surface);padding:1rem;border-radius:8px;border:1px solid var(--border)}
+.mermaid{background:var(--surface);border-radius:12px;padding:1rem;margin:1rem 0}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:800px){.two-col{grid-template-columns:1fr}}
+.mono-sm{font-size:.78rem;word-break:break-all}
+details{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.75rem 1rem;margin:1rem 0}
+details summary{cursor:pointer;color:var(--accent);font-weight:600}
+.faq dt{font-weight:600;color:var(--accent);margin-top:1rem}
+.faq dd{margin:.35rem 0 0 1rem;color:var(--muted)}
+.callout{background:var(--surface2);border-left:4px solid var(--accent);padding:1rem 1.25rem;border-radius:0 8px 8px 0;margin:1rem 0}
+.toolbar-inv{display:flex;gap:.75rem;margin:1rem 0;flex-wrap:wrap}
+.toolbar-inv input{flex:1;min-width:200px;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:.5rem .75rem;border-radius:8px}
+.tag-used{color:var(--pass)}.tag-unused{color:var(--muted)}.tag-partial{color:var(--warn)}
+.nav-links{margin-top:.5rem;font-size:.85rem}
+.nav-links a{margin-right:1rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Square → NetSuite Order Import — E2E Automation Guide</h1>
+  <p>REST API IA framework · Celigo Integrator.io · Square Orders API · NetSuite Cash Sale validation · For team demo & onboarding</p>
+</header>
+<nav>
+  <a href="#status">Status</a>
+  <a href="#architecture">Architecture</a>
+  <a href="#lifecycle">Lifecycle</a>
+  <a href="#structure">File Structure</a>
+  <a href="#codebase">Source Files</a>
+  <a href="#payloads">Payloads</a>
+  <a href="#inventory">TC Inventory</a>
+  <a href="#batches">Batches</a>
+  <a href="#flow">TC Flow</a>
+  <a href="#env">Environment</a>
+  <a href="#execution">Execution</a>
+  <a href="#validations">Validations</a>
+  <a href="#example">Examples</a>
+  <a href="#errors">Stability</a>
+  <a href="#used-not-used">Used / Not Used</a>
+  <a href="#faq">Demo Q&amp;A</a>
+  <a href="#reports">Reports</a>
+</nav>
+<main>
+
+<section id="status">
+<h2>1. Project Status — Done vs Remaining</h2>
+<div class="cards">
+  <div class="card"><div class="l">Planned TCs</div><div class="v">125</div></div>
+  <div class="card"><div class="l">On-disk JSON</div><div class="v">125</div></div>
+  <div class="card"><div class="l">Unique Zephyr IDs</div><div class="v">120+</div></div>
+  <div class="card"><div class="l">Automatable backlog</div><div class="v">121</div></div>
+  <div class="card"><div class="l">Payload folders</div><div class="v">124</div></div>
+  <div class="card"><div class="l">Log runs tracked</div><div class="v">30</div></div>
+</div>
+<table>
+<tr><th>Batch</th><th>TCs</th><th>Theme</th><th>Status</th><th>Notes</th></tr>
+<tr><td>Batch 1</td><td>10</td><td>Tax, discount, tip, rounding</td><td class="status-STABLE">STABLE</td><td>10 TCs on disk</td></tr><tr><td>Batch 2</td><td>11</td><td>Multi-line, cart/line discounts, tips</td><td class="status-STABLE">STABLE</td><td>11 TCs on disk</td></tr><tr><td>Batch 3</td><td>12</td><td>On-demand sync, default customer, tips</td><td class="status-STABLE">STABLE</td><td>12 TCs on disk</td></tr><tr><td>Batch 4</td><td>9</td><td>Modifiers, new customer, qty</td><td class="status-STABLE">STABLE</td><td>9 TCs on disk</td></tr><tr><td>Batch 5</td><td>14</td><td>Payment mapping &amp; SKU paths</td><td class="status-STABLE">STABLE</td><td>14/14 verified</td></tr><tr><td>Batch 6</td><td>18</td><td>Modifiers &amp; on-demand edge cases</td><td class="status-STABLE">STABLE</td><td>18/18 verified</td></tr><tr><td>Batch 7</td><td>8</td><td>Gift card / partial payments</td><td class="status-STABLE">STABLE</td><td>8/8 verified</td></tr><tr><td>Batch 8</td><td>25</td><td>Lot / serial / inventory</td><td class="status-IN\ PROGRESS">IN PROGRESS</td><td>Stabilizing — flowMaxWait fix applied</td></tr><tr><td>Batch 9</td><td>17</td><td>Customer, tax, IO settings</td><td class="status-NOT\ STARTED">NOT STARTED</td><td>JSON generated, pending run</td></tr>
+<tr><td>SC1</td><td>1</td><td>Core PRE-25603 order discount bug</td><td class="status-DONE">DONE</td><td>PRE25603_SC1.json on disk</td></tr>
+</table>
+<h3>Summary for demo</h3>
+<ul>
+<li><strong>All 125 TCs on disk:</strong> testcase JSON + per-TC payload folders under <code>test-data/Square_Suite/</code></li>
+<li><strong>Verified stable:</strong> Batches 5 (14/14), 6 (18/18), 7 (8/8) — green runs confirmed</li>
+<li><strong>Batches 1–4:</strong> JSON + payloads regenerated; historically run; inspect payloads per TC folder</li>
+<li><strong>In progress:</strong> Batch 8 (25 TCs) — lot/serial/inventory; stability tuning (flow retry, idle waits, maxWait fix)</li>
+<li><strong>Remaining:</strong> Batch 8 completion + Batch 9 run (17 TCs) + optional full-suite regression</li>
+<li><strong>Expected full suite time:</strong> ~2.5–4 hours sequential</li>
+</ul>
+<div class="callout">
+<strong>One-liner for stakeholders:</strong> 125 automated E2E tests create real Square orders via API, run the IO integration flow, and validate NetSuite cash sales — with generated JSON testcases and inspectable per-TC payload files.
+</div>
+</section>
+
+<section id="architecture">
+<h2>2. System Architecture</h2>
+<p>Three connected applications orchestrated by Jest + Celigo REST API IA automation framework:</p>
+<div class="mermaid">
+flowchart LR
+  subgraph Runner["Test Runner (Jest)"]
+    GS[globalSetup.js]
+    SPEC[global.spec.ts]
+    HELP[squareDataCreation.js]
+  end
+  subgraph IO["Integrator.io"]
+    INT[Square-NetSuite Integration]
+    FLOW[Order Import Flow]
+    SET[Settings API]
+    JOB[Flow Jobs]
+  end
+  subgraph SQ["Square"]
+    ORD[Orders API]
+    PAY[Payments API]
+    CAT[Catalog API]
+  end
+  subgraph NS["NetSuite"]
+    CS[Cash Sale]
+    SS[Saved Search / SuiteQL]
+  end
+  GS --> SPEC
+  SPEC --> HELP
+  HELP -->|Create order + pay| ORD
+  HELP -->|On-demand sync setting| SET
+  SPEC -->|Flow run / poll| FLOW
+  FLOW --> JOB
+  FLOW -->|Import| CS
+  SPEC -->|verifyCashsaleDataFromNetsuite| SS
+</div>
+<h3>Connection map</h3>
+<table>
+<tr><th>App</th><th>Env key</th><th>Purpose in tests</th></tr>
+<tr><td>Integrator.io</td><td><code>BASE_URL</code>, <code>CONNECTIONS.SQUARE_INTEGRATION_ID</code></td><td>Integration settings, flow run, job status</td></tr>
+<tr><td>Square</td><td><code>CONNECTIONS.SQUARE</code>, <code>SQUARE_PRIMARY_STORE_DATA.*</code></td><td>Order creation via connection export proxy + direct API in handlers</td></tr>
+<tr><td>NetSuite</td><td><code>CONNECTIONS.NETSUITE</code>, <code>CONNECTIONS.NS_ACCOUNT_IDENTIFIER</code></td><td>Cash sale lookup & field validation via proxy</td></tr>
+</table>
+<h3>How Square hooks into the framework</h3>
+<p>When <code>PBI=SQNS</code>, <code>globalSetup.js</code> registers Square handlers into the framework's <code>shopifyDataCreationHandlers</code> slot (historical name — not Shopify-specific at runtime). It also applies <code>squareNsSavedSearchPatch.js</code> to strip Shopify-only NS columns from saved searches.</p>
+<div class="mermaid">
+flowchart TB
+  subgraph Gen["Generator scripts"]
+    G1[generateSquareBatch1.js]
+    G2[generateSquareBatch2Batch3.js]
+    G4[generateSquareBatch4.js]
+    G59[generateSquareBatches5to9.js]
+  end
+  subgraph Artifacts["On-disk artifacts"]
+    TC[testcases/Square_Suite/*.json]
+    TD[test-data/Square_Suite/Order_Import/BatchN/PRETxxx/]
+  end
+  subgraph Runtime["Runtime execution"]
+    JEST[Jest + global.spec.ts]
+    HAND[squareDataCreation.js]
+    SCEN[squareOrderScenarios.js]
+  end
+  G1 & G2 & G4 & G59 --> TC
+  G1 & G2 & G4 & G59 --> TD
+  JEST -->|reads| TC
+  JEST -->|loads payloads| TD
+  JEST -->|dataCreationMethod| HAND
+  HAND --> SCEN
+  HAND -->|Square Orders API| SQAPI[Square API]
+</div>
+</section>
+
+<section id="lifecycle">
+<h2>3. End-to-End Test Lifecycle</h2>
+<p>From generator to pass/fail — what happens when you run a batch:</p>
+<div class="mermaid">
+flowchart LR
+  A[Run generator script] --> B[Write testcase JSON]
+  B --> C[Write 6 payload files per TC]
+  C --> D["npm run jest TAG=batchN"]
+  D --> E[globalSetup loads SUITE + registers handlers]
+  E --> F[For each interaction in JSON]
+  F --> G[pre_request: settings + create order + run flow]
+  G --> H[NS proxy validation]
+  H --> I{Match expectedResponse?}
+  I -->|Yes| J[PASS]
+  I -->|No| K[FAIL]
+  J --> L[HTML report + log file]
+  K --> L
+</div>
+</section>
+
+<section id="structure">
+<h2>4. Repository File Structure</h2>
+<div class="tree">
+rest-api-ia/
+├── env/E2E_Square.env                    # Square profile (IO, NS, catalog IDs, flows)
+├── testcases/Square_Suite/               # Jest loads these JSON suites
+│   ├── Order_Import/
+│   │   ├── Batch1_TaxDiscountTip.json    # 10 TCs
+│   │   ├── Batch2_OrderImport.json       # 11 TCs
+│   │   ├── Batch3_OrderImport.json       # 12 TCs
+│   │   ├── Batch4_OrderImport.json       # 9 TCs
+│   │   └── Batch5..9_OrderImport.json    # 82 TCs
+│   └── PRE25603_SC1.json                 # 1 TC
+├── test-data/Square_Suite/Order_Import/
+│   └── Batch{N}/PRET{zephyrId}/          # Per-TC payloads (6 files typical)
+│       ├── {Test}_createOrder.json       # orderKeyPrefix → handler
+│       ├── {Test}_updateSettings0.json   # IO settings before order
+│       ├── {Test}_updateSettings1.json   # on-demand sync setting
+│       ├── {Test}_flowStatusJSON.json    # enable/disable flows
+│       ├── {Test}_flow_response1.json    # expected flow job stats
+│       └── {Test}_expectedResponse1.json # expected NS cash sale
+├── helpers/
+│   ├── squareOrderScenarios.js           # Order shapes (SINGLE_LINE_BASE, SERIAL_MULTI…)
+│   ├── squareDataCreation.js             # Square API + stability handlers (~720 lines)
+│   └── squareBatchGenerator.js           # Shared generator for batches 2–9
+├── scripts/
+│   ├── generateSquareBatch1.js … generateSquareBatches5to9.js
+│   ├── generateSquareTeamDocs.js         # This guide + run dashboard
+│   ├── generateSquareHtmlReport.js       # Per-run pass/fail report
+│   ├── setupSquareBatch4Catalog.js       # One-time modifier catalog setup
+│   ├── setupSquareExtendedCatalog.js     # Lot/serial + 2nd modifier
+│   └── runSquareOrderSuite.sh            # Run all batches
+├── config/
+│   ├── squareNsSavedSearchPatch.js       # Strip Shopify NS columns for Square
+│   ├── resetSettings_Square.json         # Suite reset settings
+│   └── resetFlowStatus_Square.json
+├── __tests__/globalSetup.js              # Loads SUITE, registers Square handlers (PBI=SQNS)
+├── jest.config.js                        # 15 min timeout; 30 min for TAG=batch8
+├── .test-state/batch{N}.json             # Resume map (order IDs, flow IDs)
+├── logs/test-run-dev-Square_Suite-*.log
+└── report/                               # HTML reports + dashboards
+</div>
+</section>
+
+<section id="codebase">
+<h2>5. Key Source Files — What Each Does</h2>
+<table>
+<tr><th>File</th><th>Role</th><th>When you touch it</th></tr>
+<tr><td><code>helpers/squareOrderScenarios.js</code></td><td>Dictionary of order shapes: line items, discounts, tips, modifiers, customer type, payment type. Keyed by scenario name (e.g. <code>SINGLE_LINE_BASE</code>).</td><td>Adding a new order pattern</td></tr>
+<tr><td><code>helpers/squareDataCreation.js</code></td><td>Square API client, <code>createOrderForScenario()</code>, all <code>createSquareOrder*</code> handlers, stability: <code>waitForSquareOrderFlowIdle</code>, <code>runSquareOrderFlowWithRetry</code>, <code>squareStaticDelay</code>.</td><td>New handler, API fix, stability tuning</td></tr>
+<tr><td><code>helpers/squareBatchGenerator.js</code></td><td><code>buildInteraction()</code> — standard 11-step pre_request pipeline. <code>buildExpected()</code> — NS expected response. <code>generateBatch()</code> — writes JSON + payloads.</td><td>Changing step order or adding pre_request steps globally</td></tr>
+<tr><td><code>scripts/generateSquareBatch1.js</code></td><td>Batch 1 definitions (10 TCs) — inline generator, not using shared generateBatch.</td><td>Batch 1 TC changes</td></tr>
+<tr><td><code>scripts/generateSquareBatch2Batch3.js</code></td><td>Batch 2 (11) + Batch 3 (12) definitions.</td><td>Batch 2/3 TC changes</td></tr>
+<tr><td><code>scripts/generateSquareBatch4.js</code></td><td>Batch 4 (9) — modifiers, customer, decimal qty.</td><td>Batch 4 TC changes</td></tr>
+<tr><td><code>scripts/generateSquareBatches5to9.js</code></td><td>Main backlog file — 82 TC definitions + <code>batch8Stability</code> config.</td><td>Most new TC work happens here</td></tr>
+<tr><td><code>__tests__/globalSetup.js</code></td><td>Loads <code>SUITE</code>, filters by <code>TAG</code>, registers Square handlers when <code>PBI=SQNS</code>.</td><td>Framework wiring changes</td></tr>
+<tr><td><code>config/squareNsSavedSearchPatch.js</code></td><td>Removes Shopify-only columns from NS saved search config so Square validation works.</td><td>NS column errors during validation</td></tr>
+<tr><td><code>env/E2E_Square.env</code></td><td>All credentials, connection IDs, catalog IDs, default customer, product SKUs.</td><td>New env/account setup</td></tr>
+</table>
+<h3>Scripts reference</h3>
+<table>
+<tr><th>Script</th><th>Purpose</th><th>Run when</th></tr>
+<tr><td><code>generateSquareBatch1.js</code></td><td>Regenerate Batch 1 JSON + payloads</td><td>After editing Batch 1 definitions</td></tr>
+<tr><td><code>generateSquareBatch2Batch3.js</code></td><td>Regenerate Batches 2 & 3</td><td>After editing Batch 2/3 definitions</td></tr>
+<tr><td><code>generateSquareBatch4.js</code></td><td>Regenerate Batch 4</td><td>After editing Batch 4 definitions</td></tr>
+<tr><td><code>generateSquareBatches5to9.js</code></td><td>Regenerate Batches 5–9</td><td>After editing backlog definitions</td></tr>
+<tr><td><code>setupSquareBatch4Catalog.js</code></td><td>Create modifier catalog in Square</td><td>One-time / new Square account</td></tr>
+<tr><td><code>setupSquareExtendedCatalog.js</code></td><td>Add 2nd modifier, lot/serial items</td><td>Before Batch 6/8 on new account</td></tr>
+<tr><td><code>generateSquareTeamDocs.js</code></td><td>Regenerate this guide + run dashboard</td><td>After batch changes or new runs</td></tr>
+<tr><td><code>generateSquareHtmlReport.js</code></td><td>Pass/fail report from log files</td><td>After each test run</td></tr>
+<tr><td><code>runSquareOrderSuite.sh</code></td><td>Run all batches 1–9 + SC1</td><td>Full regression</td></tr>
+<tr><td><code>discoverSquareCatalog.js</code></td><td>List Square catalog IDs</td><td>Debug / new account setup</td></tr>
+<tr><td><code>fetchSquareNSCashSale.js</code></td><td>Fetch NS cash sale for debugging</td><td>Building expectedResponse values</td></tr>
+</table>
+</section>
+
+<section id="payloads">
+<h2>6. Payload Files — How to Inspect Any TC</h2>
+<p>Every TC has a dedicated folder. Open these files to understand exactly what the test does:</p>
+<table>
+<tr><th>File</th><th>Contains</th><th>Static or runtime?</th></tr>
+<tr><td><code>{Test}_flowStatusJSON.json</code></td><td>Which IO flows ON/OFF (Order import, Tenders, Customer)</td><td>Static</td></tr>
+<tr><td><code>{Test}_updateSettings0.json</code></td><td>Integration settings <strong>before</strong> order (tax mode, payment mapping, lot/serial, SKU track item…)</td><td>Static</td></tr>
+<tr><td><code>{Test}_createOrder.json</code></td><td><code>{ "orderKeyPrefix": "PRET16506" }</code> — triggers handler named in testcase JSON</td><td>Static pointer; order built at runtime</td></tr>
+<tr><td><code>{Test}_updateSettings1.json</code></td><td>On-demand order sync = <code>{{PRET16506onDemandOrderSync}}</code></td><td>Static template; value set at runtime</td></tr>
+<tr><td><code>{Test}_flow_response1.json</code></td><td>Expected flow job: <code>status: completed</code>, <code>numSuccess</code>, <code>numError</code></td><td>Static</td></tr>
+<tr><td><code>{Test}_expectedResponse1.json</code></td><td>Expected NS cash sale lines, eTail fields, zero variances</td><td>Static</td></tr>
+<tr><td><code>{Test}_updateSettingsValidate.json</code></td><td>(negative TCs) Settings that should return HTTP 422</td><td>Static</td></tr>
+</table>
+<div class="callout">
+<strong>Path pattern:</strong> <code>test-data/Square_Suite/Order_Import/Batch{N}/PRET{zephyrNum}/{TestName}_*.json</code><br/>
+Example: <code>test-data/Square_Suite/Order_Import/Batch1/PRET16506/Batch1SingleLine_expectedResponse1.json</code>
+</div>
+<h3>Data flow: createOrder → Square API</h3>
+<div class="mermaid">
+sequenceDiagram
+  participant TC as testcase JSON
+  participant J as Jest handler dispatch
+  participant H as squareDataCreation.js
+  participant S as squareOrderScenarios.js
+  participant API as Square Orders API
+  TC->>J: dataCreationMethod createSquareOrderSingleLineBase
+  TC->>J: orderKeyPrefix PRET16506
+  J->>H: invoke handler
+  H->>S: load SINGLE_LINE_BASE scenario
+  S-->>H: lineItems, discounts, tipCents
+  H->>API: POST /v2/orders
+  API-->>H: order.id
+  H-->>J: store PRET16506squareOrderId in map
+</div>
+</section>
+
+<section id="inventory">
+<h2>7. Full TC Inventory (125 on disk)</h2>
+<p>Search by Zephyr ID, test name, or handler. Payload folder is where all 6 JSON files live.</p>
+<div class="toolbar-inv">
+  <input type="search" id="invSearch" placeholder="Filter by PRE-T, test name, handler…"/>
+  <select id="invBatch"><option value="">All batches</option><option value="1">Batch 1</option><option value="2">Batch 2</option><option value="3">Batch 3</option><option value="4">Batch 4</option><option value="5">Batch 5</option><option value="6">Batch 6</option><option value="7">Batch 7</option><option value="8">Batch 8</option><option value="9">Batch 9</option><option value="SC1">Batch SC1</option></select>
+</div>
+<div class="table-wrap" style="overflow-x:auto;max-height:480px;overflow-y:auto">
+<table id="invTable">
+<tr><th>Batch</th><th>Zephyr</th><th>Test Key</th><th>Handler</th><th>Payload folder</th></tr>
+<tr data-batch="1" data-search="pre-t16554 batch1linecartdisc batch1linecartdisc [batch1][pre-t16554] - line 10% + cart 15% discount on single line">
+  <td>B1</td>
+  <td><code>PRE-T16554</code></td>
+  <td><code>Batch1LineCartDisc</code></td>
+  <td class="mono-sm">createSquareOrderLineAndCartDiscount</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch1/PRET16554/</code></td>
+</tr><tr data-batch="1" data-search="— batch1linedisc25 batch1linedisc25 [batch1][pre-t16554 / pre25603-sc2] - line_item 25% discount — zero tax variance">
+  <td>B1</td>
+  <td><code>—</code></td>
+  <td><code>Batch1LineDisc25</code></td>
+  <td class="mono-sm">createSquareOrderLineDiscount25</td>
+  <td class="mono-sm">—</td>
+</tr><tr data-batch="1" data-search="pre-t16602 batch1linedisctip batch1linedisctip [batch1][pre-t16602] - line discount 25% + tip — zero variance">
+  <td>B1</td>
+  <td><code>PRE-T16602</code></td>
+  <td><code>Batch1LineDiscTip</code></td>
+  <td class="mono-sm">createSquareOrderLineDiscountTip</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch1/PRET16602/</code></td>
+</tr><tr data-batch="1" data-search="— batch1orderdisc25 batch1orderdisc25 [batch1][pre25603-sc1] - order 25% discount — core pre-25603 scenario">
+  <td>B1</td>
+  <td><code>—</code></td>
+  <td><code>Batch1OrderDisc25</code></td>
+  <td class="mono-sm">createSquareOrderSC1</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch1/PRE25603SC1/</code></td>
+</tr><tr data-batch="1" data-search="— batch1orderdisctip batch1orderdisctip [batch1][pre-t16605 / pre-25603] - order 25% discount + tip — tax variance must be zero">
+  <td>B1</td>
+  <td><code>—</code></td>
+  <td><code>Batch1OrderDiscTip</code></td>
+  <td class="mono-sm">createSquareOrderOrderDiscountTip</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch1/PRET16605/</code></td>
+</tr><tr data-batch="1" data-search="pre-t16511 batch1rounddown batch1rounddown [batch1][pre-t16511] - price rounding — $19.44 line">
+  <td>B1</td>
+  <td><code>PRE-T16511</code></td>
+  <td><code>Batch1RoundDown</code></td>
+  <td class="mono-sm">createSquareOrderRoundPriceDown</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch1/PRET16511/</code></td>
+</tr><tr data-batch="1" data-search="pre-t16512 batch1roundup batch1roundup [batch1][pre-t16512] - price rounding — $19.49 line">
+  <td>B1</td>
+  <td><code>PRE-T16512</code></td>
+  <td><code>Batch1RoundUp</code></td>
+  <td class="mono-sm">createSquareOrderRoundPriceUp</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch1/PRET16512/</code></td>
+</tr><tr data-batch="1" data-search="pre-t16506 batch1singleline batch1singleline [batch1][pre-t16506] - single line order — baseline cash sale import">
+  <td>B1</td>
+  <td><code>PRE-T16506</code></td>
+  <td><code>Batch1SingleLine</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineBase</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch1/PRET16506/</code></td>
+</tr><tr data-batch="1" data-search="pre-t16599 batch1tipline batch1tipline [batch1][pre-t16599] - tip at line level — zero variance">
+  <td>B1</td>
+  <td><code>PRE-T16599</code></td>
+  <td><code>Batch1TipLine</code></td>
+  <td class="mono-sm">createSquareOrderTipLineLevel</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch1/PRET16599/</code></td>
+</tr><tr data-batch="1" data-search="pre-t16557 batch1twoline batch1twoline [batch1][pre-t16557] - multi-line taxable order — two catalog items">
+  <td>B1</td>
+  <td><code>PRE-T16557</code></td>
+  <td><code>Batch1TwoLine</code></td>
+  <td class="mono-sm">createSquareOrderTwoLineTaxable</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch1/PRET16557/</code></td>
+</tr><tr data-batch="2" data-search="pre-t16549 batch2cartdisc batch2cartdisc [batch2][orderimport][pre-t16549] - cart-level 15% discount only">
+  <td>B2</td>
+  <td><code>PRE-T16549</code></td>
+  <td><code>Batch2CartDisc</code></td>
+  <td class="mono-sm">createSquareOrderCartDiscount15</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch2/PRET16549/</code></td>
+</tr><tr data-batch="2" data-search="pre-t16606 batch2linecarttip batch2linecarttip [batch2][orderimport][pre-t16606] - line + cart discount + tip — zero variance">
+  <td>B2</td>
+  <td><code>PRE-T16606</code></td>
+  <td><code>Batch2LineCartTip</code></td>
+  <td class="mono-sm">createSquareOrderLineCartTip</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch2/PRET16606/</code></td>
+</tr><tr data-batch="2" data-search="pre-t16604 batch2linediscmultiqty batch2linediscmultiqty [batch2][orderimport][pre-t16604] - line discount + tip on qty 2">
+  <td>B2</td>
+  <td><code>PRE-T16604</code></td>
+  <td><code>Batch2LineDiscMultiQty</code></td>
+  <td class="mono-sm">createSquareOrderLineDiscMultiQty</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch2/PRET16604/</code></td>
+</tr><tr data-batch="2" data-search="pre-t16546 batch2linedisctwoline batch2linedisctwoline [batch2][orderimport][pre-t16546] - line discount on first of two lines">
+  <td>B2</td>
+  <td><code>PRE-T16546</code></td>
+  <td><code>Batch2LineDiscTwoLine</code></td>
+  <td class="mono-sm">createSquareOrderLineDiscTwoLine</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch2/PRET16546/</code></td>
+</tr><tr data-batch="2" data-search="pre-t16489 batch2multiqty batch2multiqty [batch2][orderimport][pre-t16489] - single item with quantity 3">
+  <td>B2</td>
+  <td><code>PRE-T16489</code></td>
+  <td><code>Batch2MultiQty</code></td>
+  <td class="mono-sm">createSquareOrderMultiQtySingle</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch2/PRET16489/</code></td>
+</tr><tr data-batch="2" data-search="pre-t16555 batch2orderdisctwoline batch2orderdisctwoline [batch2][orderimport][pre-t16555] - cart 10% discount on two-line order">
+  <td>B2</td>
+  <td><code>PRE-T16555</code></td>
+  <td><code>Batch2OrderDiscTwoLine</code></td>
+  <td class="mono-sm">createSquareOrderOrderDiscTwoLine</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch2/PRET16555/</code></td>
+</tr><tr data-batch="2" data-search="pre-t16488 batch2threeline batch2threeline [batch2][orderimport][pre-t16488] - three line items — multi-item order">
+  <td>B2</td>
+  <td><code>PRE-T16488</code></td>
+  <td><code>Batch2ThreeLine</code></td>
+  <td class="mono-sm">createSquareOrderThreeLine</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch2/PRET16488/</code></td>
+</tr><tr data-batch="2" data-search="pre-t16595 batch2tiplarge batch2tiplarge [batch2][orderimport][pre-t16595] - large tip ($5) on single line">
+  <td>B2</td>
+  <td><code>PRE-T16595</code></td>
+  <td><code>Batch2TipLarge</code></td>
+  <td class="mono-sm">createSquareOrderTipLarge</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch2/PRET16595/</code></td>
+</tr><tr data-batch="2" data-search="pre-t16590 batch2tiptwoline batch2tiptwoline [batch2][orderimport][pre-t16590] - tip on two-line order — zero variance">
+  <td>B2</td>
+  <td><code>PRE-T16590</code></td>
+  <td><code>Batch2TipTwoLine</code></td>
+  <td class="mono-sm">createSquareOrderTipTwoLine</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch2/PRET16590/</code></td>
+</tr><tr data-batch="2" data-search="pre-t16568 batch2twolinemultiqty batch2twolinemultiqty [batch2][orderimport][pre-t16568] - two lines each qty 2">
+  <td>B2</td>
+  <td><code>PRE-T16568</code></td>
+  <td><code>Batch2TwoLineMultiQty</code></td>
+  <td class="mono-sm">createSquareOrderTwoLineMultiQty</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch2/PRET16568/</code></td>
+</tr><tr data-batch="2" data-search="pre-t16522 batch2variation batch2variation [batch2][orderimport][pre-t16522] - catalog variation item import">
+  <td>B2</td>
+  <td><code>PRE-T16522</code></td>
+  <td><code>Batch2Variation</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineBase</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch2/PRET16522/</code></td>
+</tr><tr data-batch="3" data-search="pre-t16589 batch3cartdisctip batch3cartdisctip [batch3][orderimport][pre-t16589] - cart discount + tip — zero tax variance">
+  <td>B3</td>
+  <td><code>PRE-T16589</code></td>
+  <td><code>Batch3CartDiscTip</code></td>
+  <td class="mono-sm">createSquareOrderCartDiscTip</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch3/PRET16589/</code></td>
+</tr><tr data-batch="3" data-search="pre-t16498 batch3defaultcustaddall batch3defaultcustaddall [batch3][orderimport][pre-t16498] - default customer + add all orders checked">
+  <td>B3</td>
+  <td><code>PRE-T16498</code></td>
+  <td><code>Batch3DefaultCustAddAll</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineBase</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch3/PRET16498/</code></td>
+</tr><tr data-batch="3" data-search="pre-t16497 batch3defaultcustnoaddall batch3defaultcustnoaddall [batch3][orderimport][pre-t16497] - default customer + add all orders unchecked">
+  <td>B3</td>
+  <td><code>PRE-T16497</code></td>
+  <td><code>Batch3DefaultCustNoAddAll</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineBase</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch3/PRET16497/</code></td>
+</tr><tr data-batch="3" data-search="pre-t16593 batch3ondemandfive batch3ondemandfive [batch3][orderimport][pre-t16593] - on-demand sync for 5 orders">
+  <td>B3</td>
+  <td><code>PRE-T16593</code></td>
+  <td><code>Batch3OnDemandFive</code></td>
+  <td class="mono-sm">createSquareOrderFiveOnDemand</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch3/PRET16593/</code></td>
+</tr><tr data-batch="3" data-search="pre-t16515 batch3ondemandsuccess batch3ondemandsuccess [batch3][orderimport][pre-t16515] - on-demand order successfully imports to ns cash sale">
+  <td>B3</td>
+  <td><code>PRE-T16515</code></td>
+  <td><code>Batch3OndemandSuccess</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineBase</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch3/PRET16515/</code></td>
+</tr><tr data-batch="3" data-search="pre-t16521 batch3roundvardown batch3roundvardown [batch3][orderimport][pre-t16521] - price round down $19.44 — zero variance">
+  <td>B3</td>
+  <td><code>PRE-T16521</code></td>
+  <td><code>Batch3RoundVarDown</code></td>
+  <td class="mono-sm">createSquareOrderRoundPriceDown</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch3/PRET16521/</code></td>
+</tr><tr data-batch="3" data-search="pre-t16520 batch3roundvarup batch3roundvarup [batch3][orderimport][pre-t16520] - price round up $19.49 — zero variance">
+  <td>B3</td>
+  <td><code>PRE-T16520</code></td>
+  <td><code>Batch3RoundVarUp</code></td>
+  <td class="mono-sm">createSquareOrderRoundPriceUp</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch3/PRET16520/</code></td>
+</tr><tr data-batch="3" data-search="pre-t16518 batch3singleondemand batch3singleondemand [batch3][orderimport][pre-t16518] - on-demand single order import">
+  <td>B3</td>
+  <td><code>PRE-T16518</code></td>
+  <td><code>Batch3SingleOndemand</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineBase</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch3/PRET16518/</code></td>
+</tr><tr data-batch="3" data-search="pre-t16504 batch3tendersdisabled batch3tendersdisabled [batch3][orderimport][pre-t16504] - order import with customer/tender flows disabled">
+  <td>B3</td>
+  <td><code>PRE-T16504</code></td>
+  <td><code>Batch3TendersDisabled</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineBase</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch3/PRET16504/</code></td>
+</tr><tr data-batch="3" data-search="pre-t16600 batch3tipnosetting batch3tipnosetting [batch3][orderimport][pre-t16600] - tip without tip item setting — zero variance">
+  <td>B3</td>
+  <td><code>PRE-T16600</code></td>
+  <td><code>Batch3TipNoSetting</code></td>
+  <td class="mono-sm">createSquareOrderTipLineLevel</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch3/PRET16600/</code></td>
+</tr><tr data-batch="3" data-search="pre-t16598 batch3tipnottaxablebody batch3tipnottaxablebody [batch3][orderimport][pre-t16598] - tip with body-level tax setting — zero variance">
+  <td>B3</td>
+  <td><code>PRE-T16598</code></td>
+  <td><code>Batch3TipNotTaxableBody</code></td>
+  <td class="mono-sm">createSquareOrderTipLineLevel</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch3/PRET16598/</code></td>
+</tr><tr data-batch="3" data-search="pre-t16597 batch3tipnottaxableline batch3tipnottaxableline [batch3][orderimport][pre-t16597] - tip imported with line-level tax — zero variance">
+  <td>B3</td>
+  <td><code>PRE-T16597</code></td>
+  <td><code>Batch3TipNotTaxableLine</code></td>
+  <td class="mono-sm">createSquareOrderTipLineLevel</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch3/PRET16597/</code></td>
+</tr><tr data-batch="4" data-search="pre-t16488 batch4customerthreeline batch4customerthreeline [batch4][orderimport][pre-t16488] - existing customer + three line items">
+  <td>B4</td>
+  <td><code>PRE-T16488</code></td>
+  <td><code>Batch4CustomerThreeLine</code></td>
+  <td class="mono-sm">createSquareOrderCustomerThreeLine</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch4/PRET16488/</code></td>
+</tr><tr data-batch="4" data-search="pre-t16574 batch4decimalqty batch4decimalqty [batch4][orderimport][pre-t16574] - qty 2 on single line (decimal qty deferred — catalog item)">
+  <td>B4</td>
+  <td><code>PRE-T16574</code></td>
+  <td><code>Batch4DecimalQty</code></td>
+  <td class="mono-sm">createSquareOrderDecimalQtySingle</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch4/PRET16574/</code></td>
+</tr><tr data-batch="4" data-search="pre-t16629 batch4modifieradjust batch4modifieradjust [batch4][orderimport][pre-t16629] - single modifier — adjustment to item list price">
+  <td>B4</td>
+  <td><code>PRE-T16629</code></td>
+  <td><code>Batch4ModifierAdjust</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineModifier</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch4/PRET16629/</code></td>
+</tr><tr data-batch="4" data-search="pre-t16615 batch4modifierlinedisc batch4modifierlinedisc [batch4][orderimport][pre-t16615] - modifier + line discount — zero variance">
+  <td>B4</td>
+  <td><code>PRE-T16615</code></td>
+  <td><code>Batch4ModifierLineDisc</code></td>
+  <td class="mono-sm">createSquareOrderModifierLineDiscount</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch4/PRET16615/</code></td>
+</tr><tr data-batch="4" data-search="pre-t16630 batch4modifierlineitem batch4modifierlineitem [batch4][orderimport][pre-t16630] - single modifier — separate ns line item">
+  <td>B4</td>
+  <td><code>PRE-T16630</code></td>
+  <td><code>Batch4ModifierLineItem</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineModifier</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch4/PRET16630/</code></td>
+</tr><tr data-batch="4" data-search="pre-t16627 batch4modifiermultiqty batch4modifiermultiqty [batch4][orderimport][pre-t16627] - modifier qty 1 when line qty is 2">
+  <td>B4</td>
+  <td><code>PRE-T16627</code></td>
+  <td><code>Batch4ModifierMultiQty</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineModifierMultiQty</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch4/PRET16627/</code></td>
+</tr><tr data-batch="4" data-search="pre-t16620 batch4modifiertip batch4modifiertip [batch4][orderimport][pre-t16620] - order with modifier and tip — zero variance">
+  <td>B4</td>
+  <td><code>PRE-T16620</code></td>
+  <td><code>Batch4ModifierTip</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineModifierTip</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch4/PRET16620/</code></td>
+</tr><tr data-batch="4" data-search="pre-t16633 batch4modifiertwoline batch4modifiertwoline [batch4][orderimport][pre-t16633] - two lines — modifier on first line only">
+  <td>B4</td>
+  <td><code>PRE-T16633</code></td>
+  <td><code>Batch4ModifierTwoLine</code></td>
+  <td class="mono-sm">createSquareOrderTwoLineOneModifier</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch4/PRET16633/</code></td>
+</tr><tr data-batch="4" data-search="pre-t16495 batch4newcustomertwoline batch4newcustomertwoline [batch4][orderimport][pre-t16495] - new square customer + two line items (default ns customer)">
+  <td>B4</td>
+  <td><code>PRE-T16495</code></td>
+  <td><code>Batch4NewCustomerTwoLine</code></td>
+  <td class="mono-sm">createSquareOrderNewCustomerTwoLine</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch4/PRET16495/</code></td>
+</tr><tr data-batch="5" data-search="pre-t16507 batch5multipayment batch5multipayment [batch5][orderimport][pre-t16507] - cash + check split payment">
+  <td>B5</td>
+  <td><code>PRE-T16507</code></td>
+  <td><code>Batch5MultiPayment</code></td>
+  <td class="mono-sm">createSquareOrderMultiPayment</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch5/PRET16507/</code></td>
+</tr><tr data-batch="5" data-search="pre-t16490 batch5nomatchingsku batch5nomatchingsku [batch5][orderimport][pre-t16490] - no matching sku in netsuite">
+  <td>B5</td>
+  <td><code>PRE-T16490</code></td>
+  <td><code>Batch5NoMatchingSku</code></td>
+  <td class="mono-sm">createSquareOrderUnknownSku</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch5/PRET16490/</code></td>
+</tr><tr data-batch="5" data-search="pre-t16562 batch5noskuvaluetrack batch5noskuvaluetrack [batch5][orderimport][pre-t16562] - track item for square lines with no sku value">
+  <td>B5</td>
+  <td><code>PRE-T16562</code></td>
+  <td><code>Batch5NoSkuValueTrack</code></td>
+  <td class="mono-sm">createSquareOrderUnknownSku</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch5/PRET16562/</code></td>
+</tr><tr data-batch="5" data-search="pre-t16492 batch5paydefaultcash batch5paydefaultcash [batch5][orderimport][pre-t16492] - default cash when payment unmapped">
+  <td>B5</td>
+  <td><code>PRE-T16492</code></td>
+  <td><code>Batch5PayDefaultCash</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineBase</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch5/PRET16492/</code></td>
+</tr><tr data-batch="5" data-search="pre-t16486 batch5payemptydefault batch5payemptydefault [batch5][orderimport][pre-t16486] - import with standard payment settings">
+  <td>B5</td>
+  <td><code>PRE-T16486</code></td>
+  <td><code>Batch5PayEmptyDefault</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineBase</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch5/PRET16486/</code></td>
+</tr><tr data-batch="5" data-search="pre-t16508 batch5paymapdefault batch5paymapdefault [batch5][orderimport][pre-t16508] - payment mapping with default cash">
+  <td>B5</td>
+  <td><code>PRE-T16508</code></td>
+  <td><code>Batch5PaymapDefault</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineBase</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch5/PRET16508/</code></td>
+</tr><tr data-batch="5" data-search="pre-t16505 batch5paynulldefault batch5paynulldefault [batch5][orderimport][pre-t16505] - import with standard payment mapping">
+  <td>B5</td>
+  <td><code>PRE-T16505</code></td>
+  <td><code>Batch5PayNullDefault</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineBase</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch5/PRET16505/</code></td>
+</tr><tr data-batch="5" data-search="pre-t16500 batch5payunmappedfail batch5payunmappedfail [batch5][orderimport][pre-t16500] - fail — unmapped payment method">
+  <td>B5</td>
+  <td><code>PRE-T16500</code></td>
+  <td><code>Batch5PayUnmappedFail</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineBase</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch5/PRET16500/</code></td>
+</tr><tr data-batch="5" data-search="pre-t16561 batch5skufieldempty batch5skufieldempty [batch5][orderimport][pre-t16561] - fail — netsuite sku field empty">
+  <td>B5</td>
+  <td><code>PRE-T16561</code></td>
+  <td><code>Batch5SkuFieldEmpty</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineBase</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch5/PRET16561/</code></td>
+</tr><tr data-batch="5" data-search="pre-t16563 batch5skufieldvalid batch5skufieldvalid [batch5][orderimport][pre-t16563] - valid internal id in netsuite sku field">
+  <td>B5</td>
+  <td><code>PRE-T16563</code></td>
+  <td><code>Batch5SkuFieldValid</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineBase</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch5/PRET16563/</code></td>
+</tr><tr data-batch="5" data-search="pre-t16586 batch5tendersetail batch5tendersetail [batch5][orderimport][pre-t16586] - square tenders recorded on cash sale etail tab">
+  <td>B5</td>
+  <td><code>PRE-T16586</code></td>
+  <td><code>Batch5TendersEtail</code></td>
+  <td class="mono-sm">createSquareOrderMultiPayment</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch5/PRET16586/</code></td>
+</tr><tr data-batch="5" data-search="pre-t16558 batch5unknownskuempty batch5unknownskuempty [batch5][orderimport][pre-t16558] - unknown sku — empty track item setting">
+  <td>B5</td>
+  <td><code>PRE-T16558</code></td>
+  <td><code>Batch5UnknownSkuEmpty</code></td>
+  <td class="mono-sm">createSquareOrderUnknownSku</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch5/PRET16558/</code></td>
+</tr><tr data-batch="5" data-search="pre-t16560 batch5unknownskufail batch5unknownskufail [batch5][orderimport][pre-t16560] - fail — item not in netsuite sku">
+  <td>B5</td>
+  <td><code>PRE-T16560</code></td>
+  <td><code>Batch5UnknownSkuFail</code></td>
+  <td class="mono-sm">createSquareOrderUnknownSku</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch5/PRET16560/</code></td>
+</tr><tr data-batch="5" data-search="pre-t16559 batch5unknownskutrack batch5unknownskutrack [batch5][orderimport][pre-t16559] - unknown sku — track item configured">
+  <td>B5</td>
+  <td><code>PRE-T16559</code></td>
+  <td><code>Batch5UnknownSkuTrack</code></td>
+  <td class="mono-sm">createSquareOrderUnknownSku</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch5/PRET16559/</code></td>
+</tr><tr data-batch="6" data-search="pre-t16571 batch6customfieldondemand batch6customfieldondemand [batch6][orderimport][pre-t16571] - custom field amount on on-demand order">
+  <td>B6</td>
+  <td><code>PRE-T16571</code></td>
+  <td><code>Batch6CustomFieldOndemand</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineBase</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch6/PRET16571/</code></td>
+</tr><tr data-batch="6" data-search="pre-t16616 batch6modcartdisc batch6modcartdisc [batch6][orderimport][pre-t16616] - modifier + cart discount">
+  <td>B6</td>
+  <td><code>PRE-T16616</code></td>
+  <td><code>Batch6ModCartDisc</code></td>
+  <td class="mono-sm">createSquareOrderModifierCartDiscount</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch6/PRET16616/</code></td>
+</tr><tr data-batch="6" data-search="pre-t16622 batch6modcartdisctax batch6modcartdisctax [batch6][orderimport][pre-t16622] - modifier + cart discount + ns tax">
+  <td>B6</td>
+  <td><code>PRE-T16622</code></td>
+  <td><code>Batch6ModCartDiscTax</code></td>
+  <td class="mono-sm">createSquareOrderModifierCartDiscount</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch6/PRET16622/</code></td>
+</tr><tr data-batch="6" data-search="pre-t16617 batch6modlineitemsetting batch6modlineitemsetting [batch6][orderimport][pre-t16617] - modifier as separate ns line item">
+  <td>B6</td>
+  <td><code>PRE-T16617</code></td>
+  <td><code>Batch6ModLineItemSetting</code></td>
+  <td class="mono-sm">createSquareOrderModifierLineItemSetting</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch6/PRET16617/</code></td>
+</tr><tr data-batch="6" data-search="pre-t16623 batch6modondemanddisc batch6modondemanddisc [batch6][orderimport][pre-t16623] - on-demand modifier + line discount">
+  <td>B6</td>
+  <td><code>PRE-T16623</code></td>
+  <td><code>Batch6ModOndemandDisc</code></td>
+  <td class="mono-sm">createSquareOrderModifierLineDiscount</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch6/PRET16623/</code></td>
+</tr><tr data-batch="6" data-search="pre-t16614 batch6modvarianceline batch6modvarianceline [batch6][orderimport][pre-t16614] - modifier import — zero variance">
+  <td>B6</td>
+  <td><code>PRE-T16614</code></td>
+  <td><code>Batch6ModVarianceLine</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineModifier</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch6/PRET16614/</code></td>
+</tr><tr data-batch="6" data-search="pre-t16517 batch6ondemandelevenfail batch6ondemandelevenfail [batch6][orderimport][pre-t16517] - fail on-demand &gt;10 order ids">
+  <td>B6</td>
+  <td><code>PRE-T16517</code></td>
+  <td><code>Batch6OndemandElevenFail</code></td>
+  <td class="mono-sm">createSquareOrderElevenOnDemand</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch6/PRET16517/</code></td>
+</tr><tr data-batch="6" data-search="pre-t16514 batch6ondemandinvalidformat batch6ondemandinvalidformat [batch6][orderimport][pre-t16514] - fail on-demand invalid order id format">
+  <td>B6</td>
+  <td><code>PRE-T16514</code></td>
+  <td><code>Batch6OndemandInvalidFormat</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineBase</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch6/PRET16514/</code></td>
+</tr><tr data-batch="6" data-search="pre-t16519 batch6ondemandten batch6ondemandten [batch6][orderimport][pre-t16519] - on-demand 10 order ids">
+  <td>B6</td>
+  <td><code>PRE-T16519</code></td>
+  <td><code>Batch6OndemandTen</code></td>
+  <td class="mono-sm">createSquareOrderTenOnDemand</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch6/PRET16519/</code></td>
+</tr><tr data-batch="6" data-search="pre-t16624 batch6ondemandtenmod batch6ondemandtenmod [batch6][orderimport][pre-t16624] - on-demand 10 orders with modifier">
+  <td>B6</td>
+  <td><code>PRE-T16624</code></td>
+  <td><code>Batch6OndemandTenMod</code></td>
+  <td class="mono-sm">createSquareOrderTenModifierOnDemand</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch6/PRET16624/</code></td>
+</tr><tr data-batch="6" data-search="pre-t16513 batch6ondemandvalidinvalid batch6ondemandvalidinvalid [batch6][orderimport][pre-t16513] - on-demand valid + invalid order id">
+  <td>B6</td>
+  <td><code>PRE-T16513</code></td>
+  <td><code>Batch6OndemandValidInvalid</code></td>
+  <td class="mono-sm">createSquareOrderValidInvalidOnDemand</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch6/PRET16513/</code></td>
+</tr><tr data-batch="6" data-search="pre-t16516 batch6ondemandwrongloc batch6ondemandwrongloc [batch6][orderimport][pre-t16516] - fail on-demand order wrong location">
+  <td>B6</td>
+  <td><code>PRE-T16516</code></td>
+  <td><code>Batch6OndemandWrongLoc</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineBase</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch6/PRET16516/</code></td>
+</tr><tr data-batch="6" data-search="pre-t16631 batch6singlemultimodadjust batch6singlemultimodadjust [batch6][orderimport][pre-t16631] - single line — multiple modifiers adjust price">
+  <td>B6</td>
+  <td><code>PRE-T16631</code></td>
+  <td><code>Batch6SingleMultiModAdjust</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineMultiModifier</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch6/PRET16631/</code></td>
+</tr><tr data-batch="6" data-search="pre-t16632 batch6singlemultimodline batch6singlemultimodline [batch6][orderimport][pre-t16632] - single line — multiple modifiers as line item">
+  <td>B6</td>
+  <td><code>PRE-T16632</code></td>
+  <td><code>Batch6SingleMultiModLine</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineMultiModifier</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch6/PRET16632/</code></td>
+</tr><tr data-batch="6" data-search="pre-t16621 batch6twolineeachmod batch6twolineeachmod [batch6][orderimport][pre-t16621] - two lines — modifier on each">
+  <td>B6</td>
+  <td><code>PRE-T16621</code></td>
+  <td><code>Batch6TwoLineEachMod</code></td>
+  <td class="mono-sm">createSquareOrderTwoLineEachModifier</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch6/PRET16621/</code></td>
+</tr><tr data-batch="6" data-search="pre-t16634 batch6twolinemodadjust batch6twolinemodadjust [batch6][orderimport][pre-t16634] - two lines single modifier — adjust price">
+  <td>B6</td>
+  <td><code>PRE-T16634</code></td>
+  <td><code>Batch6TwoLineModAdjust</code></td>
+  <td class="mono-sm">createSquareOrderTwoLineEachOneModifier</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch6/PRET16634/</code></td>
+</tr><tr data-batch="6" data-search="pre-t16635 batch6twolinemultimodadjust batch6twolinemultimodadjust [batch6][orderimport][pre-t16635] - two lines multi modifier — adjust price">
+  <td>B6</td>
+  <td><code>PRE-T16635</code></td>
+  <td><code>Batch6TwoLineMultiModAdjust</code></td>
+  <td class="mono-sm">createSquareOrderTwoLineEachOneModifier</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch6/PRET16635/</code></td>
+</tr><tr data-batch="6" data-search="pre-t16636 batch6twolinemultimodline batch6twolinemultimodline [batch6][orderimport][pre-t16636] - two lines multi modifier — line item">
+  <td>B6</td>
+  <td><code>PRE-T16636</code></td>
+  <td><code>Batch6TwoLineMultiModLine</code></td>
+  <td class="mono-sm">createSquareOrderTwoLineEachOneModifier</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch6/PRET16636/</code></td>
+</tr><tr data-batch="7" data-search="pre-t16550 batch7giftfullcartdisc batch7giftfullcartdisc [batch7][orderimport][pre-t16550] - 100% gift card + cart discount">
+  <td>B7</td>
+  <td><code>PRE-T16550</code></td>
+  <td><code>Batch7GiftFullCartDisc</code></td>
+  <td class="mono-sm">createSquareOrderGiftCardFull</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch7/PRET16550/</code></td>
+</tr><tr data-batch="7" data-search="pre-t16551 batch7giftfulllinedisc batch7giftfulllinedisc [batch7][orderimport][pre-t16551] - 100% gift card + line discount">
+  <td>B7</td>
+  <td><code>PRE-T16551</code></td>
+  <td><code>Batch7GiftFullLineDisc</code></td>
+  <td class="mono-sm">createSquareOrderGiftCardFull</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch7/PRET16551/</code></td>
+</tr><tr data-batch="7" data-search="pre-t16544 batch7giftpartialbodytax batch7giftpartialbodytax [batch7][orderimport][pre-t16544] - gift card partial + body tax">
+  <td>B7</td>
+  <td><code>PRE-T16544</code></td>
+  <td><code>Batch7GiftPartialBodyTax</code></td>
+  <td class="mono-sm">createSquareOrderGiftCardPartial</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch7/PRET16544/</code></td>
+</tr><tr data-batch="7" data-search="pre-t16548 batch7giftpartialcartdisc batch7giftpartialcartdisc [batch7][orderimport][pre-t16548] - gift card partial + cart discount">
+  <td>B7</td>
+  <td><code>PRE-T16548</code></td>
+  <td><code>Batch7GiftPartialCartDisc</code></td>
+  <td class="mono-sm">createSquareOrderGiftCardPartial</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch7/PRET16548/</code></td>
+</tr><tr data-batch="7" data-search="pre-t16547 batch7giftpartiallinedisc batch7giftpartiallinedisc [batch7][orderimport][pre-t16547] - gift card partial + line discount">
+  <td>B7</td>
+  <td><code>PRE-T16547</code></td>
+  <td><code>Batch7GiftPartialLineDisc</code></td>
+  <td class="mono-sm">createSquareOrderGiftCardPartial</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch7/PRET16547/</code></td>
+</tr><tr data-batch="7" data-search="pre-t16545 batch7giftpartialtax batch7giftpartialtax [batch7][orderimport][pre-t16545] - gift card partial payment + line tax">
+  <td>B7</td>
+  <td><code>PRE-T16545</code></td>
+  <td><code>Batch7GiftPartialTax</code></td>
+  <td class="mono-sm">createSquareOrderGiftCardPartial</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch7/PRET16545/</code></td>
+</tr><tr data-batch="7" data-search="pre-t16594 batch7giftpartialtip batch7giftpartialtip [batch7][orderimport][pre-t16594] - gift card partial + tip unaffected">
+  <td>B7</td>
+  <td><code>PRE-T16594</code></td>
+  <td><code>Batch7GiftPartialTip</code></td>
+  <td class="mono-sm">createSquareOrderGiftCardPartialTip</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch7/PRET16594/</code></td>
+</tr><tr data-batch="7" data-search="pre-t16628 batch7modgiftcard batch7modgiftcard [batch7][orderimport][pre-t16628] - modifier + gift card partial">
+  <td>B7</td>
+  <td><code>PRE-T16628</code></td>
+  <td><code>Batch7ModGiftCard</code></td>
+  <td class="mono-sm">createSquareOrderModifierGiftCard</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch7/PRET16628/</code></td>
+</tr><tr data-batch="8" data-search="pre-t16582 batch8alllotpartial batch8alllotpartial [batch8][orderimport][pre-t16582] - all lot items partial qty">
+  <td>B8</td>
+  <td><code>PRE-T16582</code></td>
+  <td><code>Batch8AllLotPartial</code></td>
+  <td class="mono-sm">createSquareOrderPartialQtyMulti</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch8/PRET16582/</code></td>
+</tr><tr data-batch="8" data-search="pre-t16583 batch8allserialpartial batch8allserialpartial [batch8][orderimport][pre-t16583] - all serialized partial qty">
+  <td>B8</td>
+  <td><code>PRE-T16583</code></td>
+  <td><code>Batch8AllSerialPartial</code></td>
+  <td class="mono-sm">createSquareOrderPartialQtyMulti</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch8/PRET16583/</code></td>
+</tr><tr data-batch="8" data-search="pre-t16528 batch8lotmulti batch8lotmulti [batch8][orderimport][pre-t16528] - lot item qty 2">
+  <td>B8</td>
+  <td><code>PRE-T16528</code></td>
+  <td><code>Batch8LotMulti</code></td>
+  <td class="mono-sm">createSquareOrderLotMulti</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch8/PRET16528/</code></td>
+</tr><tr data-batch="8" data-search="pre-t16540 batch8lotmultionly batch8lotmultionly [batch8][orderimport][pre-t16540] - lot only multi qty">
+  <td>B8</td>
+  <td><code>PRE-T16540</code></td>
+  <td><code>Batch8LotMultiOnly</code></td>
+  <td class="mono-sm">createSquareOrderLotMulti</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch8/PRET16540/</code></td>
+</tr><tr data-batch="8" data-search="pre-t16567 batch8lotnormserial batch8lotnormserial [batch8][orderimport][pre-t16567] - 2 lot + 1 normal + 2 serial single qty">
+  <td>B8</td>
+  <td><code>PRE-T16567</code></td>
+  <td><code>Batch8LotNormSerial</code></td>
+  <td class="mono-sm">createSquareOrderMixedInvSerialLotSingle</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch8/PRET16567/</code></td>
+</tr><tr data-batch="8" data-search="pre-t16534 batch8lotqtymismatch batch8lotqtymismatch [batch8][orderimport][pre-t16534] - lot qty more/less in ns">
+  <td>B8</td>
+  <td><code>PRE-T16534</code></td>
+  <td><code>Batch8LotQtyMismatch</code></td>
+  <td class="mono-sm">createSquareOrderLotMulti</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch8/PRET16534/</code></td>
+</tr><tr data-batch="8" data-search="pre-t16625 batch8lotserialdisc batch8lotserialdisc [batch8][orderimport][pre-t16625] - lot + serial + discounts">
+  <td>B8</td>
+  <td><code>PRE-T16625</code></td>
+  <td><code>Batch8LotSerialDisc</code></td>
+  <td class="mono-sm">createSquareOrderLotSerialDiscount</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch8/PRET16625/</code></td>
+</tr><tr data-batch="8" data-search="pre-t16612 batch8lotserialtip batch8lotserialtip [batch8][orderimport][pre-t16612] - lot + serial + tip">
+  <td>B8</td>
+  <td><code>PRE-T16612</code></td>
+  <td><code>Batch8LotSerialTip</code></td>
+  <td class="mono-sm">createSquareOrderLotSerialTip</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch8/PRET16612/</code></td>
+</tr><tr data-batch="8" data-search="pre-t16527 batch8lotsingle batch8lotsingle [batch8][orderimport][pre-t16527] - lot item single qty">
+  <td>B8</td>
+  <td><code>PRE-T16527</code></td>
+  <td><code>Batch8LotSingle</code></td>
+  <td class="mono-sm">createSquareOrderLotSingle</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch8/PRET16527/</code></td>
+</tr><tr data-batch="8" data-search="pre-t16539 batch8lotsinglemulti batch8lotsinglemulti [batch8][orderimport][pre-t16539] - lot single/multi qty">
+  <td>B8</td>
+  <td><code>PRE-T16539</code></td>
+  <td><code>Batch8LotSingleMulti</code></td>
+  <td class="mono-sm">createSquareOrderLotSingle</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch8/PRET16539/</code></td>
+</tr><tr data-batch="8" data-search="pre-t16530 batch8mixedmulti batch8mixedmulti [batch8][orderimport][pre-t16530] - inv + serial + lot multi qty">
+  <td>B8</td>
+  <td><code>PRE-T16530</code></td>
+  <td><code>Batch8MixedMulti</code></td>
+  <td class="mono-sm">createSquareOrderMixedInvSerialLot</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch8/PRET16530/</code></td>
+</tr><tr data-batch="8" data-search="pre-t16531 batch8mixedmulti2 batch8mixedmulti2 [batch8][orderimport][pre-t16531] - inv + serial + lot — 2-digit qty">
+  <td>B8</td>
+  <td><code>PRE-T16531</code></td>
+  <td><code>Batch8MixedMulti2</code></td>
+  <td class="mono-sm">createSquareOrderMixedInvSerialLot</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch8/PRET16531/</code></td>
+</tr><tr data-batch="8" data-search="pre-t16529 batch8mixedsingle batch8mixedsingle [batch8][orderimport][pre-t16529] - inv + serial + lot single qty">
+  <td>B8</td>
+  <td><code>PRE-T16529</code></td>
+  <td><code>Batch8MixedSingle</code></td>
+  <td class="mono-sm">createSquareOrderMixedInvSerialLotSingle</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch8/PRET16529/</code></td>
+</tr><tr data-batch="8" data-search="pre-t16581 batch8partialbin batch8partialbin [batch8][orderimport][pre-t16581] - partial qty bin assignment">
+  <td>B8</td>
+  <td><code>PRE-T16581</code></td>
+  <td><code>Batch8PartialBin</code></td>
+  <td class="mono-sm">createSquareOrderPartialQtyMulti</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch8/PRET16581/</code></td>
+</tr><tr data-batch="8" data-search="pre-t16577 batch8partialmultiinv batch8partialmultiinv [batch8][orderimport][pre-t16577] - partial qty multiple inventory numbers">
+  <td>B8</td>
+  <td><code>PRE-T16577</code></td>
+  <td><code>Batch8PartialMultiInv</code></td>
+  <td class="mono-sm">createSquareOrderPartialQtyMulti</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch8/PRET16577/</code></td>
+</tr><tr data-batch="8" data-search="pre-t16576 batch8partialqtymix batch8partialqtymix [batch8][orderimport][pre-t16576] - partial + integer qty mix">
+  <td>B8</td>
+  <td><code>PRE-T16576</code></td>
+  <td><code>Batch8PartialQtyMix</code></td>
+  <td class="mono-sm">createSquareOrderPartialQtyMulti</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch8/PRET16576/</code></td>
+</tr><tr data-batch="8" data-search="pre-t16575 batch8partialqtymulti batch8partialqtymulti [batch8][orderimport][pre-t16575] - multi-line decimal/partial qty inventory">
+  <td>B8</td>
+  <td><code>PRE-T16575</code></td>
+  <td><code>Batch8PartialQtyMulti</code></td>
+  <td class="mono-sm">createSquareOrderPartialQtyMulti</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch8/PRET16575/</code></td>
+</tr><tr data-batch="8" data-search="pre-t16579 batch8partialsubrecord batch8partialsubrecord [batch8][orderimport][pre-t16579] - partial qty sub-record mapping">
+  <td>B8</td>
+  <td><code>PRE-T16579</code></td>
+  <td><code>Batch8PartialSubRecord</code></td>
+  <td class="mono-sm">createSquareOrderPartialQtyMulti</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch8/PRET16579/</code></td>
+</tr><tr data-batch="8" data-search="pre-t16526 batch8serialmulti batch8serialmulti [batch8][orderimport][pre-t16526] - serialized item qty 2">
+  <td>B8</td>
+  <td><code>PRE-T16526</code></td>
+  <td><code>Batch8SerialMulti</code></td>
+  <td class="mono-sm">createSquareOrderSerialMulti</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch8/PRET16526/</code></td>
+</tr><tr data-batch="8" data-search="pre-t16533 batch8serialqtymismatch batch8serialqtymismatch [batch8][orderimport][pre-t16533] - serialized qty more/less in ns">
+  <td>B8</td>
+  <td><code>PRE-T16533</code></td>
+  <td><code>Batch8SerialQtyMismatch</code></td>
+  <td class="mono-sm">createSquareOrderSerialMulti</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch8/PRET16533/</code></td>
+</tr><tr data-batch="8" data-search="pre-t16525 batch8serialsingle batch8serialsingle [batch8][orderimport][pre-t16525] - serialized item single qty">
+  <td>B8</td>
+  <td><code>PRE-T16525</code></td>
+  <td><code>Batch8SerialSingle</code></td>
+  <td class="mono-sm">createSquareOrderSerialSingle</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch8/PRET16525/</code></td>
+</tr><tr data-batch="8" data-search="pre-t16537 batch8serialsinglemulti batch8serialsinglemulti [batch8][orderimport][pre-t16537] - serialized single/multi qty">
+  <td>B8</td>
+  <td><code>PRE-T16537</code></td>
+  <td><code>Batch8SerialSingleMulti</code></td>
+  <td class="mono-sm">createSquareOrderSerialMulti</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch8/PRET16537/</code></td>
+</tr><tr data-batch="8" data-search="pre-t16552 batch8twolotsingle batch8twolotsingle [batch8][orderimport][pre-t16552] - two lot items single qty">
+  <td>B8</td>
+  <td><code>PRE-T16552</code></td>
+  <td><code>Batch8TwoLotSingle</code></td>
+  <td class="mono-sm">createSquareOrderTwoLotSingle</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch8/PRET16552/</code></td>
+</tr><tr data-batch="8" data-search="pre-t16570 batch8twoserialmulti batch8twoserialmulti [batch8][orderimport][pre-t16570] - two serialized items multi qty">
+  <td>B8</td>
+  <td><code>PRE-T16570</code></td>
+  <td><code>Batch8TwoSerialMulti</code></td>
+  <td class="mono-sm">createSquareOrderTwoSerialMulti</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch8/PRET16570/</code></td>
+</tr><tr data-batch="8" data-search="pre-t16569 batch8twoserialsingle batch8twoserialsingle [batch8][orderimport][pre-t16569] - two serialized items single qty">
+  <td>B8</td>
+  <td><code>PRE-T16569</code></td>
+  <td><code>Batch8TwoSerialSingle</code></td>
+  <td class="mono-sm">createSquareOrderTwoSerialSingle</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch8/PRET16569/</code></td>
+</tr><tr data-batch="9" data-search="pre-t16499 batch9alreadyimported batch9alreadyimported [batch9][orderimport][pre-t16499] - re-import already synced order">
+  <td>B9</td>
+  <td><code>PRE-T16499</code></td>
+  <td><code>Batch9AlreadyImported</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineBase</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch9/PRET16499/</code></td>
+</tr><tr data-batch="9" data-search="pre-t16523 batch9customamount batch9customamount [batch9][orderimport][pre-t16523] - custom amount + itemized line">
+  <td>B9</td>
+  <td><code>PRE-T16523</code></td>
+  <td><code>Batch9CustomAmount</code></td>
+  <td class="mono-sm">createSquareOrderCustomAmountPlusItem</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch9/PRET16523/</code></td>
+</tr><tr data-batch="9" data-search="pre-t16503 batch9customernoemail batch9customernoemail [batch9][orderimport][pre-t16503] - customer missing email">
+  <td>B9</td>
+  <td><code>PRE-T16503</code></td>
+  <td><code>Batch9CustomerNoEmail</code></td>
+  <td class="mono-sm">createSquareOrderNewCustomerNoEmail</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch9/PRET16503/</code></td>
+</tr><tr data-batch="9" data-search="pre-t16572 batch9customfieldbatch batch9customfieldbatch [batch9][orderimport][pre-t16572] - custom field multi-order batch">
+  <td>B9</td>
+  <td><code>PRE-T16572</code></td>
+  <td><code>Batch9CustomFieldBatch</code></td>
+  <td class="mono-sm">createSquareOrderFiveOnDemand</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch9/PRET16572/</code></td>
+</tr><tr data-batch="9" data-search="pre-t16573 batch9customlinefield batch9customlinefield [batch9][orderimport][pre-t16573] - custom line level field batch">
+  <td>B9</td>
+  <td><code>PRE-T16573</code></td>
+  <td><code>Batch9CustomLineField</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineBase</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch9/PRET16573/</code></td>
+</tr><tr data-batch="9" data-search="pre-t16496 batch9existingcustomer batch9existingcustomer [batch9][orderimport][pre-t16496] - existing customer cash sale">
+  <td>B9</td>
+  <td><code>PRE-T16496</code></td>
+  <td><code>Batch9ExistingCustomer</code></td>
+  <td class="mono-sm">createSquareOrderExistingCustomerSingle</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch9/PRET16496/</code></td>
+</tr><tr data-batch="9" data-search="pre-t16584 batch9invpartialqty batch9invpartialqty [batch9][orderimport][pre-t16584] - normal inventory partial qty exact import">
+  <td>B9</td>
+  <td><code>PRE-T16584</code></td>
+  <td><code>Batch9InvPartialQty</code></td>
+  <td class="mono-sm">createSquareOrderPartialQtyMulti</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch9/PRET16584/</code></td>
+</tr><tr data-batch="9" data-search="pre-t16619 batch9modadjustverify batch9modadjustverify [batch9][orderimport][pre-t16619] - modifier adjust to line item price">
+  <td>B9</td>
+  <td><code>PRE-T16619</code></td>
+  <td><code>Batch9ModAdjustVerify</code></td>
+  <td class="mono-sm">createSquareOrderModifierAdjustSetting</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch9/PRET16619/</code></td>
+</tr><tr data-batch="9" data-search="pre-t16502 batch9multilocation batch9multilocation [batch9][orderimport][pre-t16502] - multiple locations including order location">
+  <td>B9</td>
+  <td><code>PRE-T16502</code></td>
+  <td><code>Batch9MultiLocation</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineBase</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch9/PRET16502/</code></td>
+</tr><tr data-batch="9" data-search="pre-t16485 batch9newcustlocation batch9newcustlocation [batch9][orderimport][pre-t16485] - new customer at order location">
+  <td>B9</td>
+  <td><code>PRE-T16485</code></td>
+  <td><code>Batch9NewCustLocation</code></td>
+  <td class="mono-sm">createSquareOrderNewCustomerSingle</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch9/PRET16485/</code></td>
+</tr><tr data-batch="9" data-search="pre-t16487 batch9newcustsingle batch9newcustsingle [batch9][orderimport][pre-t16487] - new customer single item">
+  <td>B9</td>
+  <td><code>PRE-T16487</code></td>
+  <td><code>Batch9NewCustSingle</code></td>
+  <td class="mono-sm">createSquareOrderNewCustomerSingle</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch9/PRET16487/</code></td>
+</tr><tr data-batch="9" data-search="pre-t16493 batch9newmappings batch9newmappings [batch9][orderimport][pre-t16493] - import with standard mappings">
+  <td>B9</td>
+  <td><code>PRE-T16493</code></td>
+  <td><code>Batch9NewMappings</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineBase</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch9/PRET16493/</code></td>
+</tr><tr data-batch="9" data-search="pre-t16501 batch9nolocationselected batch9nolocationselected [batch9][orderimport][pre-t16501] - location not selected in general">
+  <td>B9</td>
+  <td><code>PRE-T16501</code></td>
+  <td><code>Batch9NoLocationSelected</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineBase</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch9/PRET16501/</code></td>
+</tr><tr data-batch="9" data-search="pre-t16556 batch9taxsingleline batch9taxsingleline [batch9][orderimport][pre-t16556] - tax as single line + per-line taxes">
+  <td>B9</td>
+  <td><code>PRE-T16556</code></td>
+  <td><code>Batch9TaxSingleLine</code></td>
+  <td class="mono-sm">createSquareOrderTaxSingleLine</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch9/PRET16556/</code></td>
+</tr><tr data-batch="9" data-search="pre-t16607 batch9tipvariance batch9tipvariance [batch9][orderimport][pre-t16607] - tip variance with correct setup">
+  <td>B9</td>
+  <td><code>PRE-T16607</code></td>
+  <td><code>Batch9TipVariance</code></td>
+  <td class="mono-sm">createSquareOrderTipVarianceCheck</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch9/PRET16607/</code></td>
+</tr><tr data-batch="9" data-search="pre-t16585 batch9updateditem batch9updateditem [batch9][orderimport][pre-t16585] - item updated in square store">
+  <td>B9</td>
+  <td><code>PRE-T16585</code></td>
+  <td><code>Batch9UpdatedItem</code></td>
+  <td class="mono-sm">createSquareOrderSingleLineBase</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch9/PRET16585/</code></td>
+</tr><tr data-batch="9" data-search="pre-t16510 batch9zerodollar batch9zerodollar [batch9][orderimport][pre-t16510] - zero dollar order import">
+  <td>B9</td>
+  <td><code>PRE-T16510</code></td>
+  <td><code>Batch9ZeroDollar</code></td>
+  <td class="mono-sm">createSquareOrderZeroDollar</td>
+  <td class="mono-sm"><code>test-data/Square_Suite/Order_Import/Batch9/PRET16510/</code></td>
+</tr><tr data-batch="SC1" data-search="pre-25603 pre25603sc1orderimport pre25603sc1orderimport - sync sc-1 square order to netsuite cash sale">
+  <td>SC1</td>
+  <td><code>PRE-25603</code></td>
+  <td><code>PRE25603SC1OrderImport</code></td>
+  <td class="mono-sm">createSquareOrderSC1</td>
+  <td class="mono-sm">—</td>
+</tr>
+</table>
+</div>
+</section>
+
+<section id="batches">
+<h2>8. Suites, Batches & Design Rationale</h2>
+<table>
+<tr><th>Suite</th><th>Batches</th><th>TC count</th><th>TAG filter</th></tr>
+<tr><td>Square_Suite / Order Import</td><td>1–9</td><td>124</td><td><code>TAG=batch5</code>, <code>batch5|batch6</code></td></tr>
+<tr><td>Square_Suite / PRE25603</td><td>SC1</td><td>1</td><td><code>TAG=pre25603</code></td></tr>
+</table>
+<h3>Why batches are grouped this way</h3>
+<table>
+<tr><th>Batch</th><th>TCs</th><th>Theme</th><th>Design reason</th></tr>
+<tr><td>Batch 1</td><td>10</td><td>Tax, discount, tip, rounding</td><td>Core tax/discount/tip/rounding regression from PRE-25603 family</td></tr><tr><td>Batch 2</td><td>11</td><td>Multi-line, cart/line discounts, tips</td><td>Multi-line orders, cart & line discounts, tips on multiple lines</td></tr><tr><td>Batch 3</td><td>12</td><td>On-demand sync, default customer, tips</td><td>On-demand sync settings, default customer, multi-order sync</td></tr><tr><td>Batch 4</td><td>9</td><td>Modifiers, new customer, qty</td><td>Modifiers, new customer creation, decimal qty — needs catalog setup</td></tr><tr><td>Batch 5</td><td>14</td><td>Payment mapping &amp; SKU paths</td><td>Payment mapping & SKU resolution — settings-heavy, many failure paths</td></tr><tr><td>Batch 6</td><td>18</td><td>Modifiers &amp; on-demand edge cases</td><td>Modifier edge cases & on-demand — second modifier catalog required</td></tr><tr><td>Batch 7</td><td>8</td><td>Gift card / partial payments</td><td>Gift card & partial payments — special payment handlers</td></tr><tr><td>Batch 8</td><td>25</td><td>Lot / serial / inventory</td><td>Lot/serial/inventory — slowest batch, stability tuning applied</td></tr><tr><td>Batch 9</td><td>17</td><td>Customer, tax, IO settings</td><td>Customer, tax, IO settings validation & edge cases</td></tr>
+</table>
+<p><strong>121 unique PRE-T*</strong> Zephyr test cases mapped to automation. Full Zephyr folder has 157; 28 excluded (manual / N/A).</p>
+</section>
+
+<section id="flow">
+<h2>9. Single TC — Internal Execution Flow</h2>
+<p>Every Order Import TC follows the same 11-step <code>pre_request</code> pipeline (Batch 8 adds stability steps):</p>
+<div class="mermaid">
+sequenceDiagram
+  participant J as Jest / global.spec
+  participant IO as Integrator.io
+  participant SQ as Square API
+  participant NS as NetSuite
+  J->>IO: 1 GET integration ID
+  J->>IO: 2 GET flow ID
+  J->>IO: 3 PUT flow status (enable order, disable payment/customer)
+  J->>IO: 4 PUT settings0 (lot/serial, tax, payment, etc.)
+  J->>SQ: 5 createOrder handler — POST order + payment
+  J->>IO: 6 PUT settings1 (on-demand order sync = location-orderId)
+  J->>J: 7 squareStaticDelay (30s batch8)
+  J->>IO: 8 waitForSquareOrderFlowIdle
+  J->>IO: 9 runSquareOrderFlowWithRetry (409 retry)
+  J->>IO: 10 GET jobs/latest waitUntil completed
+  J->>IO: 11 post-flow idle wait
+  J->>NS: verifyCashsaleDataFromNetsuite
+</div>
+</section>
+
+<section id="env">
+<h2>10. Environment Variables</h2>
+<table>
+<tr><th>Variable</th><th>Example</th><th>Role</th></tr>
+<tr><td><code>NODE_ENV=dev</code></td><td>dev</td><td>Load local <code>env/{SETUP}.env</code> instead of S3</td></tr>
+<tr><td><code>SETUP=E2E_Square</code></td><td>E2E_Square</td><td>Selects <code>env/E2E_Square.env</code></td></tr>
+<tr><td><code>SUITE=Square_Suite</code></td><td>Square_Suite</td><td>Loads <code>testcases/Square_Suite/</code> only</td></tr>
+<tr><td><code>TAG=batch8</code></td><td>batch5|batch6</td><td>Filter by substring in test_title</td></tr>
+<tr><td><code>PBI=SQNS</code></td><td>SQNS</td><td>Square mode — skips Shopify tax check, registers Square handlers</td></tr>
+<tr><td><code>TEST_MAX_RETRIES=3</code></td><td>3</td><td>Framework retry on transient failures</td></tr>
+<tr><td><code>NS_SETTLE_DELAY_MS</code></td><td>5000</td><td>Wait after flow before NS query</td></tr>
+</table>
+</section>
+
+<section id="execution">
+<h2>11. How to Run</h2>
+<pre>cd rest-api-ia
+
+# Regenerate ALL batch JSON + payloads (after editing generators)
+node scripts/generateSquareBatch1.js
+node scripts/generateSquareBatch2Batch3.js
+node scripts/generateSquareBatch4.js
+node scripts/generateSquareBatches5to9.js
+
+# Regenerate this documentation
+node scripts/generateSquareTeamDocs.js
+
+# Single batch
+env NODE_ENV=dev SETUP=E2E_Square SUITE=Square_Suite TAG=batch8 npm run jest
+
+# Multiple batches
+env NODE_ENV=dev SETUP=E2E_Square SUITE=Square_Suite TAG='batch5|batch6|batch7' npm run jest
+
+# Full suite (all batches)
+./scripts/runSquareOrderSuite.sh
+
+# Generate HTML report from log
+node scripts/generateSquareHtmlReport.js logs/test-run-dev-Square_Suite-*.log
+
+# Open Jest HTML report
+npm run report</pre>
+<h3>Expected execution times (per batch, sequential)</h3>
+<table>
+<tr><th>Batch</th><th>TCs</th><th>Typical duration</th><th>Per-TC avg</th></tr>
+<tr><td>1</td><td>10</td><td>~20–30 min</td><td>~2 min</td></tr>
+<tr><td>2</td><td>11</td><td>~20–25 min</td><td>~2 min</td></tr>
+<tr><td>3</td><td>12</td><td>~25–35 min</td><td>~2 min</td></tr>
+<tr><td>4</td><td>9</td><td>~15–20 min</td><td>~2 min</td></tr>
+<tr><td>5</td><td>14</td><td>~25–35 min</td><td>~2 min (payment tests slower)</td></tr>
+<tr><td>6</td><td>18</td><td>~20–25 min</td><td>~60–75 s</td></tr>
+<tr><td>7</td><td>8</td><td>~13 min</td><td>~90 s</td></tr>
+<tr><td>8</td><td>25</td><td>~30–45 min target</td><td>~60–120 s</td></tr>
+<tr><td>9</td><td>17</td><td>~25–35 min est.</td><td>~60–90 s est.</td></tr>
+</table>
+</section>
+
+<section id="validations">
+<h2>12. Validations by System</h2>
+<div class="two-col">
+<div>
+<h3>Square (data creation)</h3>
+<ul>
+<li>Order created with correct line items, qty, modifiers, discounts, tips</li>
+<li>Payment completed (Cash, Check, gift card proxy)</li>
+<li>Catalog IDs resolved from env (<code>SQUARE_CATALOG.*</code>)</li>
+<li>Order ID + on-demand key stored in test map</li>
+</ul>
+<h3>Integrator.io</h3>
+<ul>
+<li>Flow enabled/disabled per <code>flowStatusJSON</code></li>
+<li>Settings applied (<code>updateSettings0/1</code>)</li>
+<li>Flow run accepted; job reaches <code>completed</code></li>
+<li>Flow response: <code>numSuccess</code>, <code>numError</code>, <code>status</code></li>
+<li>Negative TCs: HTTP 422 on bad on-demand settings</li>
+</ul>
+</div>
+<div>
+<h3>NetSuite (cash sale)</h3>
+<ul>
+<li><code>verifyCashsaleDataFromNetsuite</code> via NS proxy</li>
+<li>Line items: Item name, Quantity, Item Rate</li>
+<li>eTail fields: Order Id, Channel, Currency</li>
+<li>Variance fields must be <strong>0</strong> (tax, discount, ship, total)</li>
+<li>Lookup by Square order ID (<code>uniqueValue</code>)</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section id="example">
+<h2>13. Example TCs</h2>
+<h3>Baseline — PRE-T16506 (Batch1SingleLine)</h3>
+<table>
+<tr><th>Artifact</th><th>Path / value</th></tr>
+<tr><td>Payload folder</td><td><code>test-data/Square_Suite/Order_Import/Batch1/PRET16506/</code></td></tr>
+<tr><td>Handler</td><td><code>createSquareOrderSingleLineBase</code></td></tr>
+<tr><td>Scenario</td><td><code>SINGLE_LINE_BASE</code> — 1× bottle @ $19.40</td></tr>
+<tr><td>Expected NS</td><td>1 line, rate 19.40, all variances 0</td></tr>
+</table>
+<h3>Complex — PRE-T16526 (Batch8SerialMulti)</h3>
+<table>
+<tr><th>Artifact</th><th>Path</th></tr>
+<tr><td>Testcase entry</td><td><code>testcases/.../Batch8_OrderImport.json</code> → <code>Batch8SerialMulti</code></td></tr>
+<tr><td>createOrder</td><td><code>test-data/.../Batch8/PRET16526/Batch8SerialMulti_createOrder.json</code></td></tr>
+<tr><td>settings0</td><td><code>.../Batch8SerialMulti_updateSettings0.json</code> (auto-assign lot/serial)</td></tr>
+<tr><td>settings1</td><td><code>.../Batch8SerialMulti_updateSettings1.json</code> (on-demand sync)</td></tr>
+<tr><td>expectedResponse</td><td><code>.../Batch8SerialMulti_expectedResponse1.json</code></td></tr>
+<tr><td>flow_response</td><td><code>.../Batch8SerialMulti_flow_response1.json</code></td></tr>
+<tr><td>Scenario</td><td><code>SERIAL_MULTI</code> in squareOrderScenarios.js</td></tr>
+<tr><td>Handler</td><td><code>createSquareOrderSerialMulti</code> in squareDataCreation.js</td></tr>
+</table>
+<h3>Expected NS payload (excerpt)</h3>
+<pre>{
+  "cashSale_line_items": [{ "Item": "...", "Quantity": "2", "Item Rate": "19.40" }],
+  "eTail Order Total Variance": "0",
+  "eTail Order Id": "{{PRET16526squareOrderId}}",
+  "eTail Channel": "Square"
+}</pre>
+</section>
+
+<section id="errors">
+<h2>14. Error Handling & Stability</h2>
+<table>
+<tr><th>Mechanism</th><th>Where</th><th>Handles</th></tr>
+<tr><td><code>TEST_MAX_RETRIES=3</code></td><td>Framework</td><td>Transient test failures</td></tr>
+<tr><td><code>runSquareOrderFlowWithRetry</code></td><td>squareDataCreation.js</td><td>409 job_already_queued (6 retries, 10s gap)</td></tr>
+<tr><td><code>waitForSquareOrderFlowIdle</code></td><td>Pre/post flow run</td><td>Flow still queued/running</td></tr>
+<tr><td><code>squareStaticDelay</code></td><td>30s before flow (batch8)</td><td>On-demand sync race</td></tr>
+<tr><td>Square transient retry</td><td>global.spec.ts</td><td>409, timeout when PBI=SQNS</td></tr>
+<tr><td><code>dontStopExecutionOnFailure</code></td><td>flow_response step</td><td>Flow partial validation; NS is source of truth</td></tr>
+<tr><td>Settings isolation</td><td>Per-TC settings0</td><td>Prevents leakage between TCs</td></tr>
+<tr><td><code>flowMaxWait: 10</code></td><td>Batch8 generator</td><td>10 <strong>minutes</strong> max flow poll (framework unit — not seconds!)</td></tr>
+</table>
+</section>
+
+<section id="used-not-used">
+<h2>15. What We Use vs What We Don't</h2>
+<div class="two-col">
+<div>
+<h3 class="tag-used">✅ Used for Square automation</h3>
+<ul>
+<li><code>@celigo/rest-api-ia-automation</code> — core test runner, IO API, NS proxy</li>
+<li><code>shopifyDataCreationHandlers</code> slot — framework hook (registered with Square handlers)</li>
+<li><code>env/E2E_Square.env</code> — all credentials and catalog IDs</li>
+<li>Generator scripts — source of truth for testcase definitions</li>
+<li><code>squareOrderScenarios.js</code> + <code>squareDataCreation.js</code></li>
+<li>TAG filtering — run one batch at a time</li>
+<li>NS saved search validation (<code>verifyCashsaleDataFromNetsuite</code>)</li>
+<li>Local HTML reports (<code>RP_REPORT_OPTION=local</code>)</li>
+</ul>
+</div>
+<div>
+<h3 class="tag-unused">❌ Not used (repo legacy / skipped)</h3>
+<ul>
+<li>Other Shopify test suites in <code>testcases/</code> — we use <code>SUITE=Square_Suite</code> only</li>
+<li><code>taxSetupCheck()</code> — skipped when <code>PBI=SQNS</code></li>
+<li>Shopify product/catalog creation — Square uses Square Catalog API</li>
+<li>Other <code>env/*.env</code> files — only <code>E2E_Square.env</code></li>
+<li>Report Portal remote upload — local HTML only unless configured</li>
+<li>PRE-T16523 (custom amount line) — commented out in Batch 2; needs NS SKU mapping</li>
+</ul>
+<h3 class="tag-partial">🔧 Framework quirks worked around</h3>
+<ul>
+<li>Shopify NS columns → <code>squareNsSavedSearchPatch.js</code></li>
+<li>409 job_already_queued → <code>runSquareOrderFlowWithRetry</code></li>
+<li>maxWait in minutes not seconds → set to 10 for Batch 8</li>
+<li>Settings leakage between TCs → per-TC settings0 + suite reset</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section id="faq">
+<h2>16. Demo Q&amp;A — Common Questions</h2>
+<dl class="faq">
+<dt>Where can I see the payload for a specific TC?</dt>
+<dd><code>test-data/Square_Suite/Order_Import/Batch{N}/PRETxxxxx/</code> — 6 JSON files per TC. See <a href="#payloads">Payloads section</a>.</dd>
+<dt>How is the Square order created — is it in the JSON file?</dt>
+<dd>No. <code>_createOrder.json</code> only has <code>orderKeyPrefix</code>. The handler in <code>squareDataCreation.js</code> builds the order from a scenario at runtime and POSTs to Square Orders API.</dd>
+<dt>Why is the repo called rest-api-shopify?</dt>
+<dd>It's a fork/extension of the Shopify IA automation repo. Square reuses the same framework with <code>PBI=SQNS</code>.</dd>
+<dt>What did we write vs what existed?</dt>
+<dd><strong>We wrote:</strong> Square helpers, generators, 125 testcase definitions, payload files, stability fixes, docs, env config, NS patch.<br/><strong>Existed:</strong> Jest framework, IO API client, NS proxy validation, test runner.</dd>
+<dt>How do you run one batch?</dt>
+<dd><code>env NODE_ENV=dev SETUP=E2E_Square SUITE=Square_Suite TAG=batch5 npm run jest</code></dd>
+<dt>What validates pass/fail?</dt>
+<dd>NS saved search result compared to <code>_expectedResponse1.json</code> — line items, rates, eTail variances must match.</dd>
+<dt>Why batches instead of one big suite?</dt>
+<dd>125 TCs grouped by feature area; run and stabilize incrementally; TAG keeps runs manageable (~15–45 min per batch).</dd>
+<dt>How do I regenerate test files after editing a generator?</dt>
+<dd>Run the matching <code>node scripts/generateSquareBatchN.js</code> then <code>node scripts/generateSquareTeamDocs.js</code>.</dd>
+</dl>
+</section>
+
+<section id="reports">
+<h2>17. Reports & Tracking</h2>
+<ul>
+<li><code>docs/square-automation-guide.html</code> — <strong>this guide</strong> (architecture, payloads, inventory, Q&amp;A)</li>
+<li><code>report/square_run_history_dashboard.html</code> — all runs × TC status</li>
+<li><code>report/square_order_import_report_latest.html</code> — custom pass/fail report with order IDs</li>
+<li><code>report/index.html</code> — Jest HTML reporter (latest run)</li>
+<li><code>.test-state/batch{N}.json</code> — resume state (order IDs, cash sale IDs)</li>
+<li><code>logs/test-run-dev-Square_Suite-*.log</code> — structured run logs</li>
+</ul>
+<p>Regenerate everything: <code>node scripts/generateSquareTeamDocs.js</code></p>
+<p class="muted">Generated: 2026-05-28T21:00:14.032Z</p>
+</section>
+
+</main>
+<script>
+mermaid.initialize({startOnLoad:true,theme:'dark'});
+(function(){
+  const search=document.getElementById('invSearch');
+  const batch=document.getElementById('invBatch');
+  const rows=[...document.querySelectorAll('#invTable tr[data-search]')];
+  function filter(){
+    const q=(search?.value||'').toLowerCase();
+    const b=batch?.value||'';
+    rows.forEach(r=>{
+      const okQ=!q||r.dataset.search.includes(q);
+      const okB=!b||r.dataset.batch===b;
+      r.style.display=okQ&&okB?'':'none';
+    });
+  }
+  search?.addEventListener('input',filter);
+  batch?.addEventListener('change',filter);
+})();
+</script>
+</body>
+</html>

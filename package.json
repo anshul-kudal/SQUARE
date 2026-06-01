@@ -1,0 +1,41 @@
+{
+    "name": "SQUARE",
+    "version": "1.0.0",
+    "description": "Square Order Import REST API test automation for Integrator.io (125 TCs, Batches 1-9 + SC1)",
+    "main": "index.js",
+    "scripts": {
+        "build": "rm -rf ./dist && npx tsc",
+        "build:watch": "npx tsc -w",
+        "jest": "jest --config ./jest.config.js",
+        "test": "npm run build && npm run jest",
+        "square:full": "bash scripts/runSquareOrderSuite.sh",
+        "square:report": "node scripts/generateSquareHtmlReport.js",
+        "square:docs": "node scripts/generateSquareTeamDocs.js",
+        "report": "open-cli report/index.html"
+    },
+    "keywords": ["square", "netsuite", "integrator", "e2e", "automation"],
+    "author": "Celigo",
+    "license": "ISC",
+    "engines": {
+        "node": "22.11.0"
+    },
+    "devDependencies": {
+        "@types/chai": "^5.2.3",
+        "@types/jest": "^28.1.4",
+        "dotenv": "^16.0.0",
+        "open-cli": "^7.1.0",
+        "ts-jest": "^28.0.7",
+        "ts-node": "^10.8.1",
+        "typescript": "^4.7.4"
+    },
+    "dependencies": {
+        "@celigo/aut-logger": "0.0.7",
+        "@celigo/rest-api-ia-automation": "^0.1.83",
+        "@reportportal/agent-js-jest": "5.0.6",
+        "jest": "^28.1.2",
+        "jest-html-reporter": "^3.10.2"
+    },
+    "overrides": {
+        "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
+    }
+}
