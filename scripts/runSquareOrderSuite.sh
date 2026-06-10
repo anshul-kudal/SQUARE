@@ -2,9 +2,10 @@
 # Run full Square Order Import suite (Batches 1–9 + PRE25603 SC1 = 125 TCs).
 #
 # Usage:
-#   npm run square:full              # quick profile (default)
-#   SQUARE_QUICK=0 npm run square:full   # conservative idle waits
+#   npm run square:full
 #   TAG='batch5|batch6' npm run square:full
+#
+# Full suite uses SQUARE_FLOW_PROFILE=fullsuite (faster than legacy batch8 30s+10m waits).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -14,13 +15,14 @@ if [ "$TAG" = "fullsuite" ]; then
   TAG="$FULLSUITE_TAG"
 fi
 
+export SQUARE_FLOW_PROFILE="${SQUARE_FLOW_PROFILE:-fullsuite}"
 export SQUARE_QUICK="${SQUARE_QUICK:-1}"
-export SQUARE_FLOW_PROFILE="${SQUARE_FLOW_PROFILE:-quick}"
-export TEST_MAX_RETRIES="${TEST_MAX_RETRIES:-4}"
+export TEST_MAX_RETRIES="${TEST_MAX_RETRIES:-5}"
 
 IO_HOST="${IO_HOST:-iaqa.staging.integrator.io}"
 LOG="/tmp/square_fullsuite_run.log"
 STATE_FILE=".test-state/${FULLSUITE_TAG}.json"
+REPORT_DIR="$(pwd)/report"
 
 echo "=============================================="
 echo " Square Order Import — full suite (125 TCs)"
@@ -46,26 +48,44 @@ echo "[preflight] OK (HTTP ${HTTP_CODE})"
 
 rm -f "$STATE_FILE" 2>/dev/null || true
 
-# Regenerate testcase JSON with current flow profile when running full suite
 if [ "$TAG" = "$FULLSUITE_TAG" ]; then
-  echo "[gen] Regenerating batch JSON (profile=${SQUARE_FLOW_PROFILE})..."
-  node scripts/generateSquareBatch1.js
-  node scripts/generateSquareBatch2Batch3.js
-  node scripts/generateSquareBatch4.js
-  node scripts/generateSquareBatches5to9.js
+  echo "[gen] Regenerating all batch JSON (profile=${SQUARE_FLOW_PROFILE})..."
+  SQUARE_FLOW_PROFILE="${SQUARE_FLOW_PROFILE}" node scripts/generateSquareBatch1.js
+  SQUARE_FLOW_PROFILE="${SQUARE_FLOW_PROFILE}" node scripts/generateSquareBatch2Batch3.js
+  SQUARE_FLOW_PROFILE="${SQUARE_FLOW_PROFILE}" node scripts/generateSquareBatch4.js
+  SQUARE_FLOW_PROFILE="${SQUARE_FLOW_PROFILE}" node scripts/generateSquareBatches5to9.js
 fi
 
 node scripts/watchSquareSuiteProgress.js "$LOG" &
 PROGRESS_PID=$!
 trap 'kill "$PROGRESS_PID" 2>/dev/null || true' EXIT
 
-echo "[run] Starting jest..."
+echo "[run] Starting jest (sequential, ~2–4h target with fullsuite profile)..."
+set +e
 env NODE_ENV=dev SETUP=E2E_Square PBI=SQNS SUITE=Square_Suite TAG="${TAG}" \
-  npm run jest 2>&1 | tee "$LOG"
+  npm run jest -- --runInBand 2>&1 | tee "$LOG"
 JEST_EXIT=${PIPESTATUS[0]}
+set -e
 
 kill "$PROGRESS_PID" 2>/dev/null || true
 node scripts/watchSquareSuiteProgress.js "$LOG" || true
 
-echo "[done] Exit code: ${JEST_EXIT}"
+echo ""
+echo "[report] Generating HTML suite report..."
+node scripts/generateSquareHtmlReport.js "$LOG" || true
+node scripts/parseSquareSuiteReport.js "$LOG" || true
+
+LATEST_HTML="${REPORT_DIR}/square_order_import_report_latest.html"
+echo ""
+echo "=============================================="
+echo " Full suite finished (exit ${JEST_EXIT})"
+echo " Log:  ${LOG}"
+echo " HTML: file://${LATEST_HTML}"
+echo " MD:   ${REPORT_DIR}/square_fullsuite_progress.md"
+echo "=============================================="
+
+if command -v open >/dev/null 2>&1; then
+  open "${LATEST_HTML}" 2>/dev/null || true
+fi
+
 exit "${JEST_EXIT}"

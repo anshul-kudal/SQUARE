@@ -66,7 +66,7 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 10000,
+                "delayMs": 8000,
                 "skipThePreRequestValidation": true
               }
             },
@@ -76,7 +76,7 @@
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "waitForSquareOrderFlowIdle",
                 "orderKeyPrefix": "PRET16506",
-                "flowIdleMaxWaitSec": 120,
+                "flowIdleMaxWaitSec": 90,
                 "skipThePreRequestValidation": true
               }
             },
@@ -88,7 +88,7 @@
                 "orderKeyPrefix": "PRET16506",
                 "flowRunMaxRetries": 6,
                 "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 120,
+                "flowIdleMaxWaitSec": 90,
                 "skipThePreRequestValidation": true
               }
             },
@@ -97,7 +97,7 @@
                 "method": "GET",
                 "path": "/flows/{{PRET16506flowId1}}/jobs/latest",
                 "waitUntil": "completed",
-                "maxWait": 8
+                "maxWait": 5
               },
               "response": {
                 "status": 200,
@@ -112,7 +112,7 @@
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "waitForSquareOrderFlowIdle",
                 "orderKeyPrefix": "PRET16506",
-                "flowIdleMaxWaitSec": 30,
+                "flowIdleMaxWaitSec": 25,
                 "skipThePreRequestValidation": true
               }
             },
@@ -121,7 +121,7 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 5000,
+                "delayMs": 6000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -200,7 +200,7 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 10000,
+                "delayMs": 8000,
                 "skipThePreRequestValidation": true
               }
             },
@@ -210,7 +210,7 @@
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "waitForSquareOrderFlowIdle",
                 "orderKeyPrefix": "PRET25603SC2",
-                "flowIdleMaxWaitSec": 120,
+                "flowIdleMaxWaitSec": 90,
                 "skipThePreRequestValidation": true
               }
             },
@@ -222,7 +222,7 @@
                 "orderKeyPrefix": "PRET25603SC2",
                 "flowRunMaxRetries": 6,
                 "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 120,
+                "flowIdleMaxWaitSec": 90,
                 "skipThePreRequestValidation": true
               }
             },
@@ -231,7 +231,7 @@
                 "method": "GET",
                 "path": "/flows/{{PRET25603SC2flowId1}}/jobs/latest",
                 "waitUntil": "completed",
-                "maxWait": 8
+                "maxWait": 5
               },
               "response": {
                 "status": 200,
@@ -246,7 +246,7 @@
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "waitForSquareOrderFlowIdle",
                 "orderKeyPrefix": "PRET25603SC2",
-                "flowIdleMaxWaitSec": 30,
+                "flowIdleMaxWaitSec": 25,
                 "skipThePreRequestValidation": true
               }
             },
@@ -255,7 +255,7 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 5000,
+                "delayMs": 6000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -334,7 +334,7 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 10000,
+                "delayMs": 8000,
                 "skipThePreRequestValidation": true
               }
             },
@@ -344,7 +344,7 @@
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "waitForSquareOrderFlowIdle",
                 "orderKeyPrefix": "PRET16554",
-                "flowIdleMaxWaitSec": 120,
+                "flowIdleMaxWaitSec": 90,
                 "skipThePreRequestValidation": true
               }
             },
@@ -356,7 +356,7 @@
                 "orderKeyPrefix": "PRET16554",
                 "flowRunMaxRetries": 6,
                 "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 120,
+                "flowIdleMaxWaitSec": 90,
                 "skipThePreRequestValidation": true
               }
             },
@@ -365,7 +365,7 @@
                 "method": "GET",
                 "path": "/flows/{{PRET16554flowId1}}/jobs/latest",
                 "waitUntil": "completed",
-                "maxWait": 8
+                "maxWait": 5
               },
               "response": {
                 "status": 200,
@@ -380,7 +380,7 @@
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "waitForSquareOrderFlowIdle",
                 "orderKeyPrefix": "PRET16554",
-                "flowIdleMaxWaitSec": 30,
+                "flowIdleMaxWaitSec": 25,
                 "skipThePreRequestValidation": true
               }
             },
@@ -389,7 +389,7 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 5000,
+                "delayMs": 6000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -468,7 +468,7 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 10000,
+                "delayMs": 8000,
                 "skipThePreRequestValidation": true
               }
             },
@@ -478,7 +478,7 @@
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "waitForSquareOrderFlowIdle",
                 "orderKeyPrefix": "PRET16599",
-                "flowIdleMaxWaitSec": 120,
+                "flowIdleMaxWaitSec": 90,
                 "skipThePreRequestValidation": true
               }
             },
@@ -490,7 +490,7 @@
                 "orderKeyPrefix": "PRET16599",
                 "flowRunMaxRetries": 6,
                 "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 120,
+                "flowIdleMaxWaitSec": 90,
                 "skipThePreRequestValidation": true
               }
             },
@@ -499,7 +499,7 @@
                 "method": "GET",
                 "path": "/flows/{{PRET16599flowId1}}/jobs/latest",
                 "waitUntil": "completed",
-                "maxWait": 8
+                "maxWait": 5
               },
               "response": {
                 "status": 200,
@@ -514,7 +514,7 @@
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "waitForSquareOrderFlowIdle",
                 "orderKeyPrefix": "PRET16599",
-                "flowIdleMaxWaitSec": 30,
+                "flowIdleMaxWaitSec": 25,
                 "skipThePreRequestValidation": true
               }
             },
@@ -523,7 +523,7 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 5000,
+                "delayMs": 6000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -602,7 +602,7 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 10000,
+                "delayMs": 8000,
                 "skipThePreRequestValidation": true
               }
             },
@@ -612,7 +612,7 @@
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "waitForSquareOrderFlowIdle",
                 "orderKeyPrefix": "PRET16602",
-                "flowIdleMaxWaitSec": 120,
+                "flowIdleMaxWaitSec": 90,
                 "skipThePreRequestValidation": true
               }
             },
@@ -624,7 +624,7 @@
                 "orderKeyPrefix": "PRET16602",
                 "flowRunMaxRetries": 6,
                 "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 120,
+                "flowIdleMaxWaitSec": 90,
                 "skipThePreRequestValidation": true
               }
             },
@@ -633,7 +633,7 @@
                 "method": "GET",
                 "path": "/flows/{{PRET16602flowId1}}/jobs/latest",
                 "waitUntil": "completed",
-                "maxWait": 8
+                "maxWait": 5
               },
               "response": {
                 "status": 200,
@@ -648,7 +648,7 @@
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "waitForSquareOrderFlowIdle",
                 "orderKeyPrefix": "PRET16602",
-                "flowIdleMaxWaitSec": 30,
+                "flowIdleMaxWaitSec": 25,
                 "skipThePreRequestValidation": true
               }
             },
@@ -657,7 +657,7 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 5000,
+                "delayMs": 6000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -736,7 +736,7 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 10000,
+                "delayMs": 8000,
                 "skipThePreRequestValidation": true
               }
             },
@@ -746,7 +746,7 @@
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "waitForSquareOrderFlowIdle",
                 "orderKeyPrefix": "PRET16605",
-                "flowIdleMaxWaitSec": 120,
+                "flowIdleMaxWaitSec": 90,
                 "skipThePreRequestValidation": true
               }
             },
@@ -758,7 +758,7 @@
                 "orderKeyPrefix": "PRET16605",
                 "flowRunMaxRetries": 6,
                 "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 120,
+                "flowIdleMaxWaitSec": 90,
                 "skipThePreRequestValidation": true
               }
             },
@@ -767,7 +767,7 @@
                 "method": "GET",
                 "path": "/flows/{{PRET16605flowId1}}/jobs/latest",
                 "waitUntil": "completed",
-                "maxWait": 8
+                "maxWait": 5
               },
               "response": {
                 "status": 200,
@@ -782,7 +782,7 @@
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "waitForSquareOrderFlowIdle",
                 "orderKeyPrefix": "PRET16605",
-                "flowIdleMaxWaitSec": 30,
+                "flowIdleMaxWaitSec": 25,
                 "skipThePreRequestValidation": true
               }
             },
@@ -791,7 +791,7 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 5000,
+                "delayMs": 6000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -870,7 +870,7 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 10000,
+                "delayMs": 8000,
                 "skipThePreRequestValidation": true
               }
             },
@@ -880,7 +880,7 @@
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "waitForSquareOrderFlowIdle",
                 "orderKeyPrefix": "PRET16557",
-                "flowIdleMaxWaitSec": 120,
+                "flowIdleMaxWaitSec": 90,
                 "skipThePreRequestValidation": true
               }
             },
@@ -892,7 +892,7 @@
                 "orderKeyPrefix": "PRET16557",
                 "flowRunMaxRetries": 6,
                 "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 120,
+                "flowIdleMaxWaitSec": 90,
                 "skipThePreRequestValidation": true
               }
             },
@@ -901,7 +901,7 @@
                 "method": "GET",
                 "path": "/flows/{{PRET16557flowId1}}/jobs/latest",
                 "waitUntil": "completed",
-                "maxWait": 8
+                "maxWait": 5
               },
               "response": {
                 "status": 200,
@@ -916,7 +916,7 @@
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "waitForSquareOrderFlowIdle",
                 "orderKeyPrefix": "PRET16557",
-                "flowIdleMaxWaitSec": 30,
+                "flowIdleMaxWaitSec": 25,
                 "skipThePreRequestValidation": true
               }
             },
@@ -925,7 +925,7 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 5000,
+                "delayMs": 6000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -1004,7 +1004,7 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 10000,
+                "delayMs": 8000,
                 "skipThePreRequestValidation": true
               }
             },
@@ -1014,7 +1014,7 @@
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "waitForSquareOrderFlowIdle",
                 "orderKeyPrefix": "PRET16511",
-                "flowIdleMaxWaitSec": 120,
+                "flowIdleMaxWaitSec": 90,
                 "skipThePreRequestValidation": true
               }
             },
@@ -1026,7 +1026,7 @@
                 "orderKeyPrefix": "PRET16511",
                 "flowRunMaxRetries": 6,
                 "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 120,
+                "flowIdleMaxWaitSec": 90,
                 "skipThePreRequestValidation": true
               }
             },
@@ -1035,7 +1035,7 @@
                 "method": "GET",
                 "path": "/flows/{{PRET16511flowId1}}/jobs/latest",
                 "waitUntil": "completed",
-                "maxWait": 8
+                "maxWait": 5
               },
               "response": {
                 "status": 200,
@@ -1050,7 +1050,7 @@
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "waitForSquareOrderFlowIdle",
                 "orderKeyPrefix": "PRET16511",
-                "flowIdleMaxWaitSec": 30,
+                "flowIdleMaxWaitSec": 25,
                 "skipThePreRequestValidation": true
               }
             },
@@ -1059,7 +1059,7 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 5000,
+                "delayMs": 6000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -1138,7 +1138,7 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 10000,
+                "delayMs": 8000,
                 "skipThePreRequestValidation": true
               }
             },
@@ -1148,7 +1148,7 @@
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "waitForSquareOrderFlowIdle",
                 "orderKeyPrefix": "PRET16512",
-                "flowIdleMaxWaitSec": 120,
+                "flowIdleMaxWaitSec": 90,
                 "skipThePreRequestValidation": true
               }
             },
@@ -1160,7 +1160,7 @@
                 "orderKeyPrefix": "PRET16512",
                 "flowRunMaxRetries": 6,
                 "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 120,
+                "flowIdleMaxWaitSec": 90,
                 "skipThePreRequestValidation": true
               }
             },
@@ -1169,7 +1169,7 @@
                 "method": "GET",
                 "path": "/flows/{{PRET16512flowId1}}/jobs/latest",
                 "waitUntil": "completed",
-                "maxWait": 8
+                "maxWait": 5
               },
               "response": {
                 "status": 200,
@@ -1184,7 +1184,7 @@
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "waitForSquareOrderFlowIdle",
                 "orderKeyPrefix": "PRET16512",
-                "flowIdleMaxWaitSec": 30,
+                "flowIdleMaxWaitSec": 25,
                 "skipThePreRequestValidation": true
               }
             },
@@ -1193,7 +1193,7 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 5000,
+                "delayMs": 6000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -1272,7 +1272,7 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 10000,
+                "delayMs": 8000,
                 "skipThePreRequestValidation": true
               }
             },
@@ -1282,7 +1282,7 @@
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "waitForSquareOrderFlowIdle",
                 "orderKeyPrefix": "PRE25603SC1",
-                "flowIdleMaxWaitSec": 120,
+                "flowIdleMaxWaitSec": 90,
                 "skipThePreRequestValidation": true
               }
             },
@@ -1294,7 +1294,7 @@
                 "orderKeyPrefix": "PRE25603SC1",
                 "flowRunMaxRetries": 6,
                 "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 120,
+                "flowIdleMaxWaitSec": 90,
                 "skipThePreRequestValidation": true
               }
             },
@@ -1303,7 +1303,7 @@
                 "method": "GET",
                 "path": "/flows/{{PRE25603SC1flowId1}}/jobs/latest",
                 "waitUntil": "completed",
-                "maxWait": 8
+                "maxWait": 5
               },
               "response": {
                 "status": 200,
@@ -1318,7 +1318,7 @@
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "waitForSquareOrderFlowIdle",
                 "orderKeyPrefix": "PRE25603SC1",
-                "flowIdleMaxWaitSec": 30,
+                "flowIdleMaxWaitSec": 25,
                 "skipThePreRequestValidation": true
               }
             },
@@ -1327,7 +1327,7 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 5000,
+                "delayMs": 6000,
                 "skipThePreRequestValidation": true
               }
             }

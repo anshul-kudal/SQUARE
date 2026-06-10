@@ -41,8 +41,8 @@ const autoAssignInv = {
   "Auto-assign inventory detail to Lot Numbered/Serialized items": true,
 };
 
-const batch8Stability = {
-  // Framework treats maxWait as minutes (waitTime * 60s), not seconds
+/** Legacy batch8-only runs (TAG=batch8). Full-suite uses SQUARE_FLOW_PROFILE=fullsuite instead. */
+const batch8StabilityLegacy = {
   flowMaxWait: 10,
   flowIdleMaxWaitSec: 600,
   postFlowIdleMaxWaitSec: 120,
@@ -50,17 +50,25 @@ const batch8Stability = {
   flowRunWithRetry: true,
 };
 
+function batch89StabilityOverrides() {
+  const profile =
+    process.env.SQUARE_FLOW_PROFILE ||
+    (process.env.SQUARE_QUICK === "1" ? "quick" : "default");
+  if (profile === "default") return batch8StabilityLegacy;
+  return {};
+}
+
 function batch8(key, test, zephyr, title, method, expected, extra = {}) {
   return std(key, test, zephyr, title, method, expected, {
     settings0: settings0Default(autoAssignInv),
-    ...batch8Stability,
+    ...batch89StabilityOverrides(),
     ...extra,
   });
 }
 
 function batch9(key, test, zephyr, title, method, expected, extra = {}) {
   return std(key, test, zephyr, title, method, expected, {
-    ...batch8Stability,
+    ...batch89StabilityOverrides(),
     ...extra,
   });
 }
@@ -199,7 +207,8 @@ const BATCH6 = [
     products: [{ sku: 0, rate: "19.90" }], discounts: [{ anyDiscount: true }],
   }, { settings0: settings0Default(modAdjust) }),
   std("PRET16623", "Batch6ModOndemandDisc", "PRE-T16623", "On-demand modifier + line discount", "createSquareOrderModifierLineDiscount", {
-    products: [{ sku: 0, rate: "19.90" }], discounts: [{ anyDiscount: true }],
+    products: [{ sku: 0, rate: "19.90" }],
+    lineDiscountAsAdjustment: true,
   }, { settings0: settings0Default(modAdjust) }),
   std("PRET16617", "Batch6ModLineItemSetting", "PRE-T16617", "Modifier as separate NS line item", "createSquareOrderModifierLineItemSetting", {
     products: [{ sku: 0, rate: "19.40" }],
@@ -357,7 +366,7 @@ const BATCH8 = [
       { sku: 0, rate: "19.40" },
       { sku: 1, rate: "19.40" },
     ],
-    discounts: [{ anyDiscount: true }],
+    lineDiscountAsAdjustment: true,
   }),
   batch8("PRET16525", "Batch8SerialSingle", "PRE-T16525", "Serialized item single qty", "createSquareOrderSerialSingle", {
     products: [{ sku: 0, rate: "19.40" }],

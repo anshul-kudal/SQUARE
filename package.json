@@ -9,8 +9,11 @@
         "jest": "jest --config ./jest.config.js",
         "test": "npm run build && npm run jest",
         "square:full": "bash scripts/runSquareOrderSuite.sh",
+        "square:demo": "bash scripts/runSquareDemo.sh",
+        "square:return": "bash scripts/runSquareReturnAll.sh",
         "square:report": "node scripts/generateSquareHtmlReport.js",
         "square:docs": "node scripts/generateSquareTeamDocs.js",
+        "zephyr:publish": "node scripts/publishToZephyr.js",
         "report": "open-cli report/index.html"
     },
     "keywords": ["square", "netsuite", "integrator", "e2e", "automation"],

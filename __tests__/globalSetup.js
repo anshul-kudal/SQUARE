@@ -8,6 +8,7 @@ module.exports = async () => {
   const { getFlakyTestIdsForSuite } = require("@celigo/rest-api-ia-automation/dist/src/util/flakyTestsApi");
   const { labelMap } = require("@celigo/rest-api-ia-automation/dist/src/helper/settings");
   const config = require("@celigo/rest-api-ia-automation/dist/config/config").default;
+  const { taxSetupCheck } = require("@celigo/rest-api-ia-automation/dist/src/dataCreation/netsuite");
 
   const dir = path.join(process.env.PWD, "testcases");
 
@@ -17,16 +18,26 @@ module.exports = async () => {
   try {
     const skipFlaky = process.env.SKIP_FLAKY_TESTS === "true";
     if (skipFlaky && !process.env.SUITE) {
-      throw new Error("SKIP_FLAKY_TESTS=true requires SUITE env var.");
+      throw new Error(
+        "SKIP_FLAKY_TESTS=true requires SUITE env var to be set. Cannot determine which suite's flaky tests to skip."
+      );
     }
 
     if (process.env.SUITE !== undefined) {
       let flakyTestIds = [];
       if (skipFlaky) {
+        Logger.info(
+          `[FlakySkip] SKIP_FLAKY_TESTS=true detected for suite "${process.env.SUITE}". Fetching flaky test list from S3...`
+        );
         try {
           flakyTestIds = await getFlakyTestIdsForSuite(process.env.SUITE);
+          Logger.info(
+            `[FlakySkip] Loaded ${flakyTestIds.length} flaky test id(s) for suite "${process.env.SUITE}": ${JSON.stringify(flakyTestIds)}`
+          );
         } catch (err) {
-          Logger.warn(`[FlakySkip] Could not load flaky list: ${err?.message || err}`);
+          Logger.warn(
+            `[FlakySkip] Failed to load flaky master list, running ALL tests for safety: ${err?.message || err}`
+          );
           flakyTestIds = [];
         }
       }
@@ -36,7 +47,7 @@ module.exports = async () => {
       global.inputData = getData(dir);
     }
 
-    if (process.env.TAG) {
+    if (process.env.TAG !== undefined && process.env.TAG !== "") {
       Logger.info("TAG INFO - " + process.env.TAG);
     }
 
@@ -48,17 +59,24 @@ module.exports = async () => {
     Logger.info("Loading All Labels Into The Map ......");
     await labelMap();
 
-    process.env.PBI = process.env.PBI || "SQNS";
-    Logger.info("Square mode (PBI=SQNS) — skipping Shopify taxSetupCheck");
+    if (process.env.PBI === "SQNS") {
+      Logger.info("Skipping taxSetupCheck for Square (PBI=SQNS)");
+      const { applySquareNsSavedSearchPatch } = require("../config/squareNsSavedSearchPatch");
+      applySquareNsSavedSearchPatch();
+      Logger.info("Applied Square NS saved-search column patch (removed Shopify-only columns)");
 
-    const { applySquareNsSavedSearchPatch } = require("../config/squareNsSavedSearchPatch");
-    applySquareNsSavedSearchPatch();
-    Logger.info("Applied Square NS saved-search column patch");
-
-    const shopifyModule = require("@celigo/rest-api-ia-automation/dist/src/dataCreation/shopify");
-    const { squareDataCreationHandlers } = require("../helpers/squareDataCreation");
-    Object.assign(shopifyModule.shopifyDataCreationHandlers, squareDataCreationHandlers);
-    Logger.info("Registered Square data-creation handlers");
+      const shopifyModule = require("@celigo/rest-api-ia-automation/dist/src/dataCreation/shopify");
+      const { squareDataCreationHandlers } = require("../helpers/squareDataCreation");
+      Object.assign(shopifyModule.shopifyDataCreationHandlers, squareDataCreationHandlers);
+      Logger.info("Registered Square data-creation handlers");
+    } else {
+      const check = await taxSetupCheck();
+      if (check) {
+        throw new Error(
+          "INVALID TAX SETUP: Tax configuration validation failed. Check NS account tax settings."
+        );
+      }
+    }
   } catch (error) {
     Logger.error("Error in global setup: " + error);
     throw error;

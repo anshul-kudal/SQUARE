@@ -216,7 +216,7 @@ const SCENARIOS = {
   },
   SINGLE_LINE_MULTI_MODIFIER: {
     zephyr: ["PRE-T16631", "PRE-T16632"],
-    lineItems: [{ catalogKey: "BOTTLE", qty: 1, priceCents: 1940, modifiers: [{ qty: 1 }, { qty: 1, modifierKey: 2 }] }],
+    lineItems: [{ catalogKey: "BOTTLE", qty: 1, priceCents: 1940, modifiers: [{ qty: 2, modifierKey: 1 }] }],
   },
   TWO_LINE_EACH_ONE_MODIFIER: {
     zephyr: ["PRE-T16634", "PRE-T16635", "PRE-T16636"],

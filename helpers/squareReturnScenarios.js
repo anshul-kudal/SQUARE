@@ -1,0 +1,54 @@
+/**
+ * Square Return/Refund smoke scenarios — order setup + refund intent.
+ * Orders always include CASH payment so Refunds API can target a payment_id.
+ */
+const { SCENARIOS: ORDER_SCENARIOS } = require("./squareOrderScenarios");
+
+const PAY_CASH = { type: "CASH" };
+
+function withPayment(scenario) {
+  return { ...scenario, payment: scenario.payment || PAY_CASH };
+}
+
+/** @type {Record<string, object>} */
+const RETURN_ORDER_SCENARIOS = {
+  RETURN_SINGLE_LINE: withPayment(ORDER_SCENARIOS.SINGLE_LINE_BASE),
+  RETURN_ROUND_UP: withPayment(ORDER_SCENARIOS.ROUND_PRICE_UP),
+  RETURN_ROUND_DOWN: withPayment(ORDER_SCENARIOS.ROUND_PRICE_DOWN),
+  RETURN_LINE_DISC_25: withPayment(ORDER_SCENARIOS.LINE_DISCOUNT_25),
+  RETURN_LINE_CART_DISC: withPayment(ORDER_SCENARIOS.LINE_AND_CART_DISCOUNT),
+  RETURN_CART_DISC_15: withPayment(ORDER_SCENARIOS.CART_DISCOUNT_15),
+  RETURN_TIP_LINE: withPayment(ORDER_SCENARIOS.TIP_LINE_LEVEL),
+  RETURN_LINE_DISC_TIP: withPayment(ORDER_SCENARIOS.LINE_DISCOUNT_TIP),
+  RETURN_ORDER_DISC_TIP: withPayment(ORDER_SCENARIOS.ORDER_DISCOUNT_TIP),
+  RETURN_MULTI_QTY: withPayment(ORDER_SCENARIOS.MULTI_QTY_SINGLE),
+  RETURN_ORDER_DISC_25: withPayment(ORDER_SCENARIOS.ORDER_DISCOUNT_25),
+  RETURN_CUSTOM_AMOUNT: withPayment(ORDER_SCENARIOS.CUSTOM_AMOUNT_PLUS_ITEM),
+  RETURN_TWO_LINE: withPayment(ORDER_SCENARIOS.TWO_LINE_TAXABLE),
+  RETURN_THREE_LINE: withPayment(ORDER_SCENARIOS.THREE_LINE),
+  RETURN_LINE_DISC_TWO_LINE: withPayment(ORDER_SCENARIOS.LINE_DISC_TWO_LINE),
+  RETURN_TWO_LINE_MULTI_QTY: withPayment(ORDER_SCENARIOS.TWO_LINE_MULTI_QTY),
+  RETURN_ORDER_DISC_TWO_LINE: withPayment(ORDER_SCENARIOS.ORDER_DISC_TWO_LINE),
+  RETURN_TIP_TWO_LINE: withPayment(ORDER_SCENARIOS.TIP_TWO_LINE),
+  RETURN_LINE_DISC_MULTI_QTY: withPayment(ORDER_SCENARIOS.LINE_DISC_MULTI_QTY),
+  RETURN_TWO_LINE_ONE_MODIFIER: withPayment(ORDER_SCENARIOS.TWO_LINE_ONE_MODIFIER),
+  RETURN_MODIFIER: withPayment(ORDER_SCENARIOS.SINGLE_LINE_MODIFIER),
+};
+
+/** Refund kinds passed to createSquareRefund via _createRefund.json */
+const REFUND_KINDS = {
+  FULL: "full",
+  HALF_AMOUNT: "partial_half",
+  PARTIAL_PCT: "partial_pct",
+  FIXED_CENTS: "partial_amount",
+  PARTIAL_QTY: "partial_qty",
+  ONE_LINE_ESTIMATE: "partial_one_line",
+  PARTIAL_LINE_INDEX: "partial_line_index",
+  ONE_UNIT: "partial_one_unit",
+};
+
+module.exports = {
+  RETURN_ORDER_SCENARIOS,
+  REFUND_KINDS,
+  PAY_CASH,
+};

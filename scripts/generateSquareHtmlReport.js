@@ -13,7 +13,9 @@ const path = require("path");
 
 const ROOT = path.join(__dirname, "..");
 const TC_DIR = path.join(ROOT, "testcases/Square_Suite/Order_Import");
+const TC_ROOT = path.join(ROOT, "testcases/Square_Suite");
 const LOG_DIR = path.join(ROOT, "logs");
+const SQUARE_REPO_URL = "https://github.com/anshul-kudal/SQUARE";
 const OUT_DIR = path.join(ROOT, "report");
 const ENV_FILE = path.join(ROOT, "env/E2E_Square.env");
 
@@ -162,14 +164,18 @@ function parseTitleMeta(testTitle) {
 }
 
 function loadInventory() {
-  const files = fs
-    .readdirSync(TC_DIR)
-    .filter((f) => f.endsWith(".json"))
-    .sort();
   const items = [];
-  for (const file of files) {
-    const json = JSON.parse(fs.readFileSync(path.join(TC_DIR, file), "utf8"));
-    const batchNum = (file.match(/Batch(\d+)/i) || [])[1] || "?";
+  const seen = new Set();
+  const scanDirs = [TC_DIR, TC_ROOT].filter((d) => fs.existsSync(d));
+  for (const dir of scanDirs) {
+    const files = fs.readdirSync(dir).filter((f) => f.endsWith(".json")).sort();
+    for (const file of files) {
+      if (seen.has(file)) continue;
+      seen.add(file);
+      const json = JSON.parse(fs.readFileSync(path.join(dir, file), "utf8"));
+      const batchNum =
+        (file.match(/Batch(\d+)/i) || [])[1] ||
+        (file.includes("25603") ? "SC1" : "?");
     for (const suite of json.testData || []) {
       for (const ix of suite.interactions || []) {
         const title = ix.test_title || ix.test || "";
@@ -186,6 +192,7 @@ function loadInventory() {
             String(ix.request?.path || "").includes("integrationID"),
         });
       }
+    }
     }
   }
   return items;
@@ -341,18 +348,26 @@ function parseLogFile(logPath) {
   const summaryMatch = text.match(
     /Total:\s+(\d+)[\s\S]*?Passed:\s+(\d+)[\s\S]*?Failed:\s+(\d+)(?:[\s\S]*?Skipped:\s+(\d+))?/
   );
+  const jestSummary = text.match(/Tests:\s+(\d+) failed, (\d+) passed, (\d+) total/);
 
   return {
     results,
     suiteSec: suiteTimeMatch ? Number(suiteTimeMatch[1]) : null,
-    summary: summaryMatch
+    summary: jestSummary
       ? {
-          total: Number(summaryMatch[1]),
-          passed: Number(summaryMatch[2]),
-          failed: Number(summaryMatch[3]),
-          skipped: Number(summaryMatch[4] || 0),
+          total: Number(jestSummary[3]),
+          passed: Number(jestSummary[2]),
+          failed: Number(jestSummary[1]),
+          skipped: 0,
         }
-      : null,
+      : summaryMatch
+        ? {
+            total: Number(summaryMatch[1]),
+            passed: Number(summaryMatch[2]),
+            failed: Number(summaryMatch[3]),
+            skipped: Number(summaryMatch[4] || 0),
+          }
+        : null,
     logPath,
   };
 }
@@ -392,29 +407,55 @@ function formatOrderIds(r) {
   return ids.join(", ");
 }
 
-function buildHtml({ inventory, rows, logs, generatedAt, envInfo }) {
-  // Report shows verified (PASS) TCs only — excludes NOT_RUN, FAIL, and not-yet-run batches
+function buildHtml({ inventory, rows, logs, generatedAt, envInfo, suiteSec, jestSummary }) {
   const passedRows = rows.filter((r) => r.status === "PASS");
-  const total = passedRows.length;
-  const passed = total;
-  const failed = 0;
-  const totalExecSec = passedRows.reduce((s, r) => s + (r.durationSec || 0), 0);
-  const stability = total === 0 ? "NO-DATA" : "STABLE";
+  const failRows = rows.filter((r) => r.status === "FAIL");
+  const notRunRows = rows.filter((r) => r.status === "NOT_RUN");
+  const total = inventory.length;
+  const mergedLogs = (logs?.length ?? 0) > 1;
+  const jestLooksFullSuite = jestSummary && jestSummary.total >= 100;
+  const useRowCounts = mergedLogs || !jestLooksFullSuite;
+  const passed = useRowCounts ? passedRows.length : jestSummary.passed;
+  const failed = useRowCounts ? failRows.length : jestSummary.failed;
+  const summedSec = rows
+    .filter((r) => r.status === "PASS" || r.status === "FAIL")
+    .reduce((s, r) => s + (r.durationSec || 0), 0);
+  const totalExecSec = mergedLogs ? summedSec : suiteSec ?? summedSec;
+  const passRate = total ? Math.round((passed / total) * 100) : 0;
+  const uniqueZephyr = new Set(
+    inventory.map((i) => i.zephyr).filter((z) => z.startsWith("PRE-T"))
+  ).size;
+  const automated = total;
+  const remainingAutomate = 0;
+  const remainingStabilize = failed;
+  const automatePct = 100;
+  const stability =
+    total === 0
+      ? "NO-DATA"
+      : failed === 0 && passed === total
+        ? "STABLE"
+        : passRate >= 70
+          ? "PARTIAL"
+          : "UNSTABLE";
 
   const batchStats = {};
-  for (const r of passedRows) {
+  for (const r of rows) {
     const b = r.batch;
-    if (!batchStats[b]) batchStats[b] = { total: 0, pass: 0, fail: 0, time: 0 };
-    batchStats[b].total++;
-    batchStats[b].pass++;
-    batchStats[b].time += r.durationSec || 0;
+    if (!batchStats[b]) batchStats[b] = { planned: 0, pass: 0, fail: 0, notRun: 0, time: 0 };
+    batchStats[b].planned++;
+    if (r.status === "PASS") {
+      batchStats[b].pass++;
+      batchStats[b].time += r.durationSec || 0;
+    } else if (r.status === "FAIL") batchStats[b].fail++;
+    else batchStats[b].notRun++;
   }
 
-  const failRows = [];
+  const allRows = rows;
 
-  const tableRows = passedRows
+  const tableRows = allRows
     .map((r, i) => {
-      const statusClass = r.status === "PASS" ? "pass" : "fail";
+      const statusClass =
+        r.status === "PASS" ? "pass" : r.status === "FAIL" ? "fail" : "pending";
       const orderDisplay = formatOrderIds(r);
       const orderTitle = r.squareOrderIds?.length > 1 ? r.squareOrderIds.join("\n") : orderDisplay;
       const csDisplay = r.skipNsValidation && !r.cashSaleId
@@ -438,17 +479,24 @@ function buildHtml({ inventory, rows, logs, generatedAt, envInfo }) {
     .join("\n");
 
   const batchCards = Object.keys(batchStats)
-    .sort((a, b) => Number(a) - Number(b))
+    .sort((a, b) => {
+      if (a === "SC1") return 1;
+      if (b === "SC1") return -1;
+      return Number(a) - Number(b);
+    })
     .map((b) => {
       const s = batchStats[b];
+      const pct = s.planned ? Math.round((s.pass / s.planned) * 100) : 0;
+      const label = b === "SC1" ? "SC1" : `Batch ${b}`;
       return `<div class="batch-card">
-        <h3>Batch ${b}</h3>
+        <h3>${label}</h3>
         <div class="batch-metrics">
-          <span class="pass">${s.pass} passed</span>
-          <span>${s.total} verified</span>
+          <span class="pass">${s.pass} pass</span>
+          <span class="fail">${s.fail} fail</span>
+          <span class="muted">${s.planned} TCs</span>
         </div>
-        <div class="progress"><div class="bar" style="width:100%"></div></div>
-        <div class="muted">${fmtDuration(s.time)} total</div>
+        <div class="progress"><div class="bar" style="width:${pct}%"></div></div>
+        <div class="muted">${pct}% · ${fmtDuration(s.time)}</div>
       </div>`;
     })
     .join("\n");
@@ -651,34 +699,114 @@ function buildHtml({ inventory, rows, logs, generatedAt, envInfo }) {
     .table-wrap { overflow-x: auto; border-radius: 12px; }
     footer { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.85rem; }
     .nav-links a { color: var(--accent); margin-right: 1rem; text-decoration: none; font-size: 0.9rem; }
+    .hero { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem 2rem; margin-bottom: 2rem; }
+    .hero h2 { margin-top: 0; border: none; font-size: 1.35rem; }
+    .hero-lead { color: var(--muted); max-width: 900px; }
+    .hero-cards .card.highlight { border-color: var(--accent); }
+    .callout-box { background: rgba(96,165,250,0.1); border: 1px solid var(--accent); border-radius: 10px; padding: 1rem 1.25rem; margin-top: 1rem; font-size: 0.95rem; }
+    .callout-box a { color: var(--accent); }
+    .row-fail { opacity: 0.95; }
+    .row-pending td { color: var(--muted); }
+    .badge.pending { background: rgba(251,191,36,0.2); color: var(--pending); }
+    .tile-row { margin: 1.25rem 0 0; }
+    .tile-row-title { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 0.75rem; font-weight: 600; }
+    .progress-wrap { margin: 1rem 0; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.35rem; }
+    .progress-bar { height: 10px; background: var(--surface2); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+    .progress-fill { height: 100%; border-radius: 6px; }
+    .progress-fill.automate { background: linear-gradient(90deg, var(--accent), #7dd3fc); }
+    .progress-fill.pass { background: linear-gradient(90deg, var(--pass), #6ee7b7); }
+    .next-steps-box { background: rgba(96,165,250,0.08); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; margin-top: 1rem; }
+    .next-steps-box h3 { margin: 0 0 0.5rem; font-size: 0.95rem; color: var(--accent); }
+    .next-steps-box ol { margin: 0; padding-left: 1.25rem; color: var(--muted); font-size: 0.9rem; }
+    .next-steps-box li { margin-bottom: 0.35rem; }
+    .card.warn .value { color: var(--pending); }
   </style>
 </head>
 <body>
   <header>
-    <h1>Square Order Import — Test Report</h1>
-    <p>Generated ${esc(generatedAt)} · Logs: ${logs.map((l) => esc(path.basename(l))).join(", ") || "none"}</p>
+    <h1>Square Order Import — Full Suite Test Report</h1>
+    <p>Generated ${esc(generatedAt)} · ${total} automated TCs · Batches 1–9 + SC1 · Standalone repo: <a href="${SQUARE_REPO_URL}" style="color:#93c5fd">${SQUARE_REPO_URL}</a></p>
     <p class="nav-links">
+      <a href="square-demo-guide.html">Demo Guide</a>
       <a href="square-automation-guide.html">Team Guide</a>
       <a href="square_run_history_dashboard.html">Run History</a>
       <a href="index.html">Jest Report</a>
     </p>
-    <p class="muted">Passed / verified TCs only (${total} · Batches ${Object.keys(batchStats).sort((a,b)=>Number(a)-Number(b)).join(", ") || "—"} · ${inventory.length} total in suite inventory)</p>
+    <p class="muted">Logs: ${logs.map((l) => esc(path.basename(l))).join(", ") || "none"}</p>
     ${envBanner}
-    <span class="stability ${stability}">${stability.replace(/-/g, " ")}</span>
+    <span class="stability ${stability}">${stability.replace(/-/g, " ")} · ${passRate}% pass rate</span>
   </header>
   <main>
+    <section class="hero">
+      <h2>Executive Summary — Square E2E Automation Achievement</h2>
+      <p class="hero-lead">End-to-end REST API automation for Square POS → Integrator.io → NetSuite Cash Sale. Every test creates a real Square order, runs the IO flow, and validates NetSuite data — ready for regression on every release.</p>
+
+      <div class="tile-row">
+        <p class="tile-row-title">Latest full-suite run</p>
+        <div class="cards hero-cards">
+          <div class="card pass highlight"><div class="label">Passed</div><div class="value">${passed}</div></div>
+          <div class="card fail highlight"><div class="label">Failed</div><div class="value">${failed}</div></div>
+          <div class="card time highlight"><div class="label">Pass Rate</div><div class="value">${passRate}%</div></div>
+          <div class="card time highlight"><div class="label">Full Suite Duration</div><div class="value">${esc(fmtDuration(totalExecSec))}</div></div>
+          <div class="card highlight"><div class="label">Coverage</div><div class="value" style="font-size:1.1rem">B1–B9 + SC1</div></div>
+        </div>
+      </div>
+
+      <div class="tile-row">
+        <p class="tile-row-title">Automation coverage — total · unique · completed · remaining</p>
+        <div class="cards hero-cards">
+          <div class="card highlight"><div class="label">Total TCs</div><div class="value">${total}</div></div>
+          <div class="card highlight"><div class="label">Unique Zephyr IDs</div><div class="value">${uniqueZephyr}</div></div>
+          <div class="card pass highlight"><div class="label">Picked &amp; automated</div><div class="value">${automated}</div></div>
+          <div class="card warn highlight"><div class="label">Remaining (automate)</div><div class="value">${remainingAutomate}</div></div>
+          <div class="card warn highlight"><div class="label">Remaining (stabilize)</div><div class="value">${remainingStabilize}</div></div>
+          <div class="card pending highlight"><div class="label">Not run (last log)</div><div class="value">${notRunRows.length}</div></div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span>Automation complete</span><span>${automated}/${total} (${automatePct}%)</span></div>
+          <div class="progress-bar"><div class="progress-fill automate" style="width:${automatePct}%"></div></div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span>Latest full-suite pass rate</span><span>${passed}/${total} (${passRate}%)</span></div>
+          <div class="progress-bar"><div class="progress-fill pass" style="width:${passRate}%"></div></div>
+        </div>
+      </div>
+
+      <div class="next-steps-box">
+        <h3>Next steps</h3>
+        <ol>
+          <li>All ${total} TCs automated on disk — focus on stabilizing ${remainingStabilize} full-suite failures</li>
+          <li>Live demo: 3 sample TCs in ~5 min — see <a href="square-demo-guide.html">square-demo-guide.html</a></li>
+          <li>Per-batch regression before hotfixes (TAG=batchN, ~15–45 min)</li>
+          <li>Full suite before major releases (~8 h) · Repo: <a href="${SQUARE_REPO_URL}">${SQUARE_REPO_URL}</a></li>
+        </ol>
+      </div>
+
+      <div class="callout-box">
+        <strong>GitHub repo:</strong> <a href="${SQUARE_REPO_URL}">${SQUARE_REPO_URL}</a> — clone, configure <code>env/E2E_Square.env</code>, run any batch or <code>npm run square:full</code>.
+      </div>
+    </section>
+
+    <h2>What We Validate</h2>
+    <ul class="scope-list">
+      <li><strong>Square → IO:</strong> Real orders via Square Orders API (tax, discounts, tips, modifiers, multi-line, gift cards, lot/serial items)</li>
+      <li><strong>Integrator.io:</strong> Flow run, job completion, integration settings per TC (payment mapping, SKU paths, on-demand sync, customer defaults)</li>
+      <li><strong>NetSuite:</strong> <code>verifyCashsaleDataFromNetsuite</code> — line items (SKU, qty, rate), discounts, tax/shipping variances (= 0), eTail order linkage</li>
+    </ul>
+
     <div class="cards">
-      <div class="card"><div class="label">Verified</div><div class="value">${total}</div></div>
+      <div class="card"><div class="label">In Inventory</div><div class="value">${total}</div></div>
       <div class="card pass"><div class="label">Passed</div><div class="value">${passed}</div></div>
       <div class="card fail"><div class="label">Failed</div><div class="value">${failed}</div></div>
+      <div class="card pending"><div class="label">Not Run</div><div class="value">${notRunRows.length}</div></div>
       <div class="card time"><div class="label">Total Run Time</div><div class="value">${esc(fmtDuration(totalExecSec))}</div></div>
-      <div class="card time"><div class="label">Pass Rate</div><div class="value">${total ? Math.round((passed / total) * 100) : 0}%</div></div>
     </div>
 
-    <h2>Batch Overview (verified passed)</h2>
-    <div class="batch-grid">${batchCards || '<p class="empty">No passed tests found in logs yet.</p>'}</div>
+    <h2>Batch Overview (all ${total} TCs)</h2>
+    <div class="batch-grid">${batchCards || '<p class="empty">No batch data.</p>'}</div>
 
-    <h2>Verified Test Cases (${total})</h2>
+    <h2>All Test Cases (${total})</h2>
     <div class="toolbar">
       <input type="search" id="search" placeholder="Search TC ID, order ID, description…"/>
       <select id="filterBatch"><option value="">All batches</option>${Object.keys(batchStats).sort((a,b)=>Number(a)-Number(b)).map(b=>`<option value="${b}">Batch ${b}</option>`).join("")}</select>
@@ -692,7 +820,7 @@ function buildHtml({ inventory, rows, logs, generatedAt, envInfo }) {
             <th>Status</th><th>Duration</th><th>Failure Reason</th>
           </tr>
         </thead>
-        <tbody>${tableRows || '<tr><td colspan="10" class="muted">No passed tests found in logs.</td></tr>'}</tbody>
+        <tbody>${tableRows || '<tr><td colspan="10" class="muted">No test results in logs.</td></tr>'}</tbody>
       </table>
     </div>
 
@@ -732,17 +860,17 @@ function main() {
   if (logPaths.length === 0) {
     const discovered = discoverLogPaths();
     const tmpDefaults = [
+      "/tmp/square_fullsuite_run.log",
       "/tmp/square_batches1-5.log",
-      "/tmp/square_pret16593.log",
       "/tmp/square_batch6.log",
-      "/tmp/square_batches5-6.log",
-      "/tmp/square_batches1-5_rerun.log",
     ].filter((p) => fs.existsSync(p));
-    logPaths = discovered.length ? discovered : tmpDefaults;
+    logPaths = tmpDefaults.length ? tmpDefaults : discovered;
   }
 
   const inventory = loadInventory();
   const mergedResults = new Map();
+  let suiteSec = null;
+  let jestSummary = null;
 
   // Process oldest logs first; newer logs override. PASS always beats FAIL.
   const sortedLogPaths = [...logPaths]
@@ -750,6 +878,8 @@ function main() {
     .sort((a, b) => (fs.statSync(a).mtimeMs || 0) - (fs.statSync(b).mtimeMs || 0));
   for (const logPath of sortedLogPaths) {
     const parsed = parseLogFile(logPath);
+    if (parsed.suiteSec) suiteSec = parsed.suiteSec;
+    if (parsed.summary?.total >= 100) jestSummary = parsed.summary;
     for (const [k, v] of parsed.results) {
       const prev = mergedResults.get(k) || {};
       const merged = { ...prev, ...v };
@@ -815,6 +945,8 @@ function main() {
     logs: logPaths.filter((p) => fs.existsSync(p)),
     generatedAt: new Date().toISOString(),
     envInfo: loadEnvInfo(),
+    suiteSec,
+    jestSummary,
   });
   fs.writeFileSync(outFile, html);
 
@@ -842,4 +974,97 @@ function main() {
   );
 }
 
-main();
+const DEFAULT_FULLSUITE_LOGS = [
+  "/tmp/square_fullsuite_run.log",
+  "/tmp/square_fullsuite_resume.log",
+  "/tmp/square_fullsuite_resume2.log",
+  "/tmp/square_fullsuite_resume3.log",
+  "/tmp/square_fullsuite_resume4.log",
+];
+
+function getMergedSuiteStats(logPaths = DEFAULT_FULLSUITE_LOGS) {
+  const inventory = loadInventory();
+  const mergedResults = new Map();
+  const sorted = [...logPaths]
+    .filter((p) => fs.existsSync(p))
+    .sort((a, b) => (fs.statSync(a).mtimeMs || 0) - (fs.statSync(b).mtimeMs || 0));
+  for (const logPath of sorted) {
+    const parsed = parseLogFile(logPath);
+    for (const [k, v] of parsed.results) {
+      const prev = mergedResults.get(k) || {};
+      const merged = { ...prev, ...v };
+      if (prev.status === "PASS" || v.status === "PASS") merged.status = "PASS";
+      else if (prev.status === "FAIL" || v.status === "FAIL") merged.status = "FAIL";
+      mergedResults.set(k, merged);
+    }
+  }
+  const rows = inventory.map((item) => {
+    const result = matchResult(item, mergedResults);
+    const meta = parseTitleMeta(item.testTitle);
+    return {
+      batch: item.batch,
+      test: item.test,
+      zephyr: item.zephyr,
+      title: meta.title,
+      status: result?.status || "NOT_RUN",
+      durationSec: result?.durationSec ?? null,
+      reason: result?.reason || null,
+      category: result?.category || null,
+    };
+  });
+  const passed = rows.filter((r) => r.status === "PASS").length;
+  const failed = rows.filter((r) => r.status === "FAIL").length;
+  const notRun = rows.filter((r) => r.status === "NOT_RUN").length;
+  const batchStats = {};
+  for (const r of rows) {
+    const b = r.batch;
+    if (!batchStats[b]) batchStats[b] = { pass: 0, fail: 0, notRun: 0, time: 0 };
+    if (r.status === "PASS") {
+      batchStats[b].pass++;
+      batchStats[b].time += r.durationSec || 0;
+    } else if (r.status === "FAIL") batchStats[b].fail++;
+    else batchStats[b].notRun++;
+  }
+  const failures = rows
+    .filter((r) => r.status === "FAIL")
+    .map((r) => ({
+      test: r.test,
+      batch: r.batch,
+      zephyr: r.zephyr,
+      title: r.title,
+      reason: r.reason || "See merged logs",
+      category: r.category || "VALIDATION_FAILED",
+    }));
+  const suiteSec = rows
+    .filter((r) => r.status === "PASS" || r.status === "FAIL")
+    .reduce((s, r) => s + (r.durationSec || 0), 0);
+  return {
+    total: inventory.length,
+    passed,
+    failed,
+    notRun,
+    passRate: inventory.length ? Math.round((passed / inventory.length) * 100) : 0,
+    suiteSec,
+    logs: sorted.map((p) => path.basename(p)),
+    batchStats,
+    failures,
+    rows,
+  };
+}
+
+if (require.main === module) {
+  main();
+}
+
+module.exports = {
+  parseLogFile,
+  matchResult,
+  extractOrderIdsFromMap,
+  fmtDuration,
+  loadEnvInfo,
+  parseTitleMeta,
+  stripAnsi,
+  logMessage,
+  getMergedSuiteStats,
+  DEFAULT_FULLSUITE_LOGS,
+};

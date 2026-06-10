@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Square E2E Automation — Team Guide</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+:root{--bg:#0b1020;--surface:#151d2e;--surface2:#1c2740;--text:#e8edf5;--muted:#93a4bc;--accent:#5b9cf5;--pass:#34d399;--fail:#f87171;--warn:#fbbf24;--border:#2a3650}
+*{box-sizing:border-box}body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+header{background:linear-gradient(120deg,#1a3a6b,#0b1020);padding:2.5rem 2rem;border-bottom:1px solid var(--border)}
+header h1{margin:0 0 .5rem;font-size:2rem}header p{color:var(--muted);max-width:900px}
+nav{position:sticky;top:0;background:rgba(11,16,32,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:.75rem 2rem;display:flex;flex-wrap:wrap;gap:.5rem 1rem;z-index:10}
+nav a{color:var(--accent);text-decoration:none;font-size:.9rem}
+main{max-width:1200px;margin:0 auto;padding:2rem}
+section{margin-bottom:3rem}
+h2{font-size:1.5rem;border-bottom:1px solid var(--border);padding-bottom:.5rem;margin-top:2.5rem}
+h3{color:var(--accent);margin-top:1.5rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin:1rem 0}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem}
+.card .v{font-size:1.6rem;font-weight:700}.card .l{font-size:.75rem;color:var(--muted);text-transform:uppercase}
+table{width:100%;border-collapse:collapse;font-size:.88rem;margin:1rem 0}
+th,td{border:1px solid var(--border);padding:.55rem .65rem;text-align:left;vertical-align:top}
+th{background:var(--surface2)}code,.mono{font-family:ui-monospace,monospace;font-size:.85em;background:var(--surface2);padding:.1em .35em;border-radius:4px}
+pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;overflow:auto;font-size:.82rem}
+.status-DONE,.status-STABLE{color:var(--pass)}.status-IN\ PROGRESS{color:var(--warn)}.status-NOT\ STARTED{color:var(--muted)}
+.tree{font-family:ui-monospace,monospace;font-size:.82rem;line-height:1.45;background:var(--surface);padding:1rem;border-radius:8px;border:1px solid var(--border)}
+.mermaid{background:var(--surface);border-radius:12px;padding:1rem;margin:1rem 0}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:800px){.two-col{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Square → NetSuite Order Import — E2E Automation Guide</h1>
+  <p>REST API IA framework · Celigo Integrator.io · Square Orders API · NetSuite Cash Sale validation · For team demo & onboarding</p>
+</header>
+<nav>
+  <a href="#status">Status</a>
+  <a href="#architecture">Architecture</a>
+  <a href="#structure">File Structure</a>
+  <a href="#batches">Batches & TCs</a>
+  <a href="#flow">TC Flow</a>
+  <a href="#env">Environment</a>
+  <a href="#execution">Execution</a>
+  <a href="#validations">Validations</a>
+  <a href="#example">Example TC</a>
+  <a href="#errors">Error Handling</a>
+  <a href="#reports">Reports</a>
+</nav>
+<main>
+
+<section id="status">
+<h2>1. Project Status — Done vs Remaining</h2>
+<div class="cards">
+  <div class="card"><div class="l">Planned TCs</div><div class="v">125</div></div>
+  <div class="card"><div class="l">On-disk JSON</div><div class="v">83</div></div>
+  <div class="card"><div class="l">Unique Zephyr IDs</div><div class="v">82+</div></div>
+  <div class="card"><div class="l">Automatable backlog</div><div class="v">121</div></div>
+  <div class="card"><div class="l">Log runs tracked</div><div class="v">30</div></div>
+</div>
+<table>
+<tr><th>Batch</th><th>TCs</th><th>Theme</th><th>Status</th><th>Notes</th></tr>
+<tr><td>Batch 1</td><td>10</td><td>Tax, discount, tip, rounding</td><td class="status-DONE">DONE</td><td>Generator only; JSON regenerated on demand</td></tr><tr><td>Batch 2</td><td>11</td><td>Multi-line, cart/line discounts, tips</td><td class="status-DONE">DONE</td><td>Generator only</td></tr><tr><td>Batch 3</td><td>12</td><td>On-demand sync, default customer, tips</td><td class="status-DONE">DONE</td><td>Generator only</td></tr><tr><td>Batch 4</td><td>9</td><td>Modifiers, new customer, qty</td><td class="status-DONE">DONE</td><td>Generator only</td></tr><tr><td>Batch 5</td><td>14</td><td>Payment mapping &amp; SKU paths</td><td class="status-STABLE">STABLE</td><td>14/14 verified</td></tr><tr><td>Batch 6</td><td>18</td><td>Modifiers &amp; on-demand edge cases</td><td class="status-STABLE">STABLE</td><td>18/18 verified</td></tr><tr><td>Batch 7</td><td>8</td><td>Gift card / partial payments</td><td class="status-STABLE">STABLE</td><td>8/8 verified</td></tr><tr><td>Batch 8</td><td>25</td><td>Lot / serial / inventory</td><td class="status-IN\ PROGRESS">IN PROGRESS</td><td>Stabilizing — flowMaxWait fix applied</td></tr><tr><td>Batch 9</td><td>17</td><td>Customer, tax, IO settings</td><td class="status-NOT\ STARTED">NOT STARTED</td><td>JSON generated, pending run</td></tr>
+<tr><td>SC1</td><td>1</td><td>Core PRE-25603 order discount bug</td><td class="status-DONE">DONE</td><td>PRE25603_SC1.json on disk</td></tr>
+</table>
+<h3>Summary for demo</h3>
+<ul>
+<li><strong>Done & stable:</strong> Batches 5 (14/14), 6 (18/18), 7 (8/8) — verified green runs</li>
+<li><strong>Done (earlier):</strong> Batches 1–4 — implemented via generators; full JSON can be regenerated; historically run with fixes</li>
+<li><strong>In progress:</strong> Batch 8 (25 TCs) — lot/serial/inventory; stability tuning (flow retry, idle waits, maxWait fix)</li>
+<li><strong>Remaining:</strong> Batch 8 completion + Batch 9 run (17 TCs) + optional full-suite regression</li>
+<li><strong>Expected full suite time:</strong> ~2.5–4 hours sequential (56 TCs ≈ 3.3h historically; batches 5–7 ≈ 47 min; batch 8 ≈ 30–45 min target)</li>
+</ul>
+</section>
+
+<section id="architecture">
+<h2>2. System Architecture</h2>
+<p>Three connected applications orchestrated by Jest + Celigo REST API IA automation framework:</p>
+<div class="mermaid">
+flowchart LR
+  subgraph Runner["Test Runner (Jest)"]
+    GS[globalSetup.js]
+    SPEC[global.spec.ts]
+    HELP[squareDataCreation.js]
+  end
+  subgraph IO["Integrator.io"]
+    INT[Square-NetSuite Integration]
+    FLOW[Order Import Flow]
+    SET[Settings API]
+    JOB[Flow Jobs]
+  end
+  subgraph SQ["Square"]
+    ORD[Orders API]
+    PAY[Payments API]
+    CAT[Catalog API]
+  end
+  subgraph NS["NetSuite"]
+    CS[Cash Sale]
+    SS[Saved Search / SuiteQL]
+  end
+  GS --> SPEC
+  SPEC --> HELP
+  HELP -->|Create order + pay| ORD
+  HELP -->|On-demand sync setting| SET
+  SPEC -->|Flow run / poll| FLOW
+  FLOW --> JOB
+  FLOW -->|Import| CS
+  SPEC -->|verifyCashsaleDataFromNetsuite| SS
+</div>
+<h3>Connection map</h3>
+<table>
+<tr><th>App</th><th>Env key</th><th>Purpose in tests</th></tr>
+<tr><td>Integrator.io</td><td><code>BASE_URL</code>, <code>CONNECTIONS.SQUARE_INTEGRATION_ID</code></td><td>Integration settings, flow run, job status</td></tr>
+<tr><td>Square</td><td><code>CONNECTIONS.SQUARE</code>, <code>SQUARE_PRIMARY_STORE_DATA.*</code></td><td>Order creation via connection export proxy + direct API in handlers</td></tr>
+<tr><td>NetSuite</td><td><code>CONNECTIONS.NETSUITE</code>, <code>CONNECTIONS.NS_ACCOUNT_IDENTIFIER</code></td><td>Cash sale lookup & field validation via proxy</td></tr>
+</table>
+</section>
+
+<section id="structure">
+<h2>3. Repository File Structure</h2>
+<div class="tree">
+rest-api-ia/
+├── env/E2E_Square.env              # Square profile (NS account, IO URL, catalog IDs, flows)
+├── testcases/Square_Suite/           # Jest loads these JSON suites
+│   ├── Order_Import/Batch5..9_*.json
+│   └── PRE25603_SC1.json
+├── test-data/Square_Suite/Order_Import/
+│   └── Batch{N}/PRET{zephyrId}/     # Per-TC payloads (6 files each typical)
+│       ├── {Test}_createOrder.json
+│       ├── {Test}_updateSettings0.json
+│       ├── {Test}_updateSettings1.json
+│       ├── {Test}_flowStatusJSON.json
+│       ├── {Test}_flow_response1.json
+│       └── {Test}_expectedResponse1.json
+├── helpers/
+│   ├── squareOrderScenarios.js      # Order shapes (SERIAL_MULTI, LOT_MULTI, …)
+│   ├── squareDataCreation.js        # Square API + stability handlers
+│   └── squareBatchGenerator.js      # Generates JSON + test-data from definitions
+├── scripts/
+│   ├── generateSquareBatch1.js … generateSquareBatches5to9.js
+│   ├── generateSquareHtmlReport.js
+│   └── runSquareOrderSuite.sh
+├── __tests__/globalSetup.js         # Loads SUITE, registers Square handlers (PBI=SQNS)
+├── jest.config.js                   # 15 min timeout; 30 min for TAG=batch8
+├── .test-state/batch{N}.json        # Resume map (order IDs, flow IDs, cash sale IDs)
+├── logs/test-run-dev-Square_Suite-*.log
+└── report/                          # HTML reports + run dashboard
+</div>
+</section>
+
+<section id="batches">
+<h2>4. Suites, Batches & Test Counts</h2>
+<table>
+<tr><th>Suite</th><th>Batches</th><th>TC count</th><th>TAG filter</th></tr>
+<tr><td>Square_Suite / Order Import</td><td>1–9</td><td>124</td><td><code>TAG=batch5</code>, <code>batch5|batch6</code></td></tr>
+<tr><td>Square_Suite / PRE25603</td><td>SC1</td><td>1</td><td><code>TAG=pre25603</code></td></tr>
+</table>
+<p><strong>121 unique PRE-T*</strong> Zephyr test cases mapped to automation. Full Zephyr folder has 157; 28 excluded (manual / N/A).</p>
+</section>
+
+<section id="flow">
+<h2>5. Single TC — Internal Execution Flow</h2>
+<p>Every Order Import TC follows the same 11-step <code>pre_request</code> pipeline (Batch 8 adds stability steps):</p>
+<div class="mermaid">
+sequenceDiagram
+  participant J as Jest / global.spec
+  participant IO as Integrator.io
+  participant SQ as Square API
+  participant NS as NetSuite
+  J->>IO: 1 GET integration ID
+  J->>IO: 2 GET flow ID
+  J->>IO: 3 PUT flow status (enable order, disable payment/customer)
+  J->>IO: 4 PUT settings0 (lot/serial, tax, payment, etc.)
+  J->>SQ: 5 createOrder handler — POST order + payment
+  J->>IO: 6 PUT settings1 (on-demand order sync = location-orderId)
+  J->>J: 7 squareStaticDelay (30s batch8)
+  J->>IO: 8 waitForSquareOrderFlowIdle
+  J->>IO: 9 runSquareOrderFlowWithRetry (409 retry)
+  J->>IO: 10 GET jobs/latest waitUntil completed
+  J->>IO: 11 post-flow idle wait
+  J->>NS: verifyCashsaleDataFromNetsuite
+</div>
+</section>
+
+<section id="env">
+<h2>6. Environment Variables</h2>
+<table>
+<tr><th>Variable</th><th>Example</th><th>Role</th></tr>
+<tr><td><code>NODE_ENV=dev</code></td><td>dev</td><td>Load local <code>env/{SETUP}.env</code> instead of S3</td></tr>
+<tr><td><code>SETUP=E2E_Square</code></td><td>E2E_Square</td><td>Selects <code>env/E2E_Square.env</code></td></tr>
+<tr><td><code>SUITE=Square_Suite</code></td><td>Square_Suite</td><td>Loads <code>testcases/Square_Suite/</code> only</td></tr>
+<tr><td><code>TAG=batch8</code></td><td>batch5|batch6</td><td>Filter by substring in test_title</td></tr>
+<tr><td><code>PBI=SQNS</code></td><td>SQNS</td><td>Square mode — skips Shopify tax check, registers Square handlers</td></tr>
+<tr><td><code>TEST_MAX_RETRIES=3</code></td><td>3</td><td>Framework retry on transient failures</td></tr>
+<tr><td><code>NS_SETTLE_DELAY_MS</code></td><td>5000</td><td>Wait after flow before NS query</td></tr>
+</table>
+</section>
+
+<section id="execution">
+<h2>7. How to Run</h2>
+<pre>cd rest-api-ia
+
+# Regenerate batch JSON (after editing generators)
+node scripts/generateSquareBatches5to9.js
+
+# Single batch
+env NODE_ENV=dev SETUP=E2E_Square SUITE=Square_Suite TAG=batch8 npm run jest
+
+# Multiple batches
+env NODE_ENV=dev SETUP=E2E_Square SUITE=Square_Suite TAG='batch5|batch6|batch7' npm run jest
+
+# Generate HTML report from log
+node scripts/generateSquareHtmlReport.js logs/test-run-dev-Square_Suite-*.log
+
+# Open Jest HTML report
+npm run report</pre>
+<h3>Expected execution times (per batch, sequential)</h3>
+<table>
+<tr><th>Batch</th><th>TCs</th><th>Typical duration</th><th>Per-TC avg</th></tr>
+<tr><td>5</td><td>14</td><td>~25–35 min</td><td>~2 min (payment tests slower)</td></tr>
+<tr><td>6</td><td>18</td><td>~20–25 min</td><td>~60–75 s</td></tr>
+<tr><td>7</td><td>8</td><td>~13 min</td><td>~90 s</td></tr>
+<tr><td>8</td><td>25</td><td>~30–45 min target</td><td>~60–120 s</td></tr>
+<tr><td>9</td><td>17</td><td>~25–35 min est.</td><td>~60–90 s est.</td></tr>
+</table>
+</section>
+
+<section id="validations">
+<h2>8. Validations by System</h2>
+<div class="two-col">
+<div>
+<h3>Square (data creation)</h3>
+<ul>
+<li>Order created with correct line items, qty, modifiers, discounts, tips</li>
+<li>Payment completed (Cash, Check, gift card proxy)</li>
+<li>Catalog IDs resolved from env (<code>SQUARE_CATALOG.*</code>)</li>
+<li>Order ID + on-demand key stored in test map</li>
+</ul>
+<h3>Integrator.io</h3>
+<ul>
+<li>Flow enabled/disabled per <code>flowStatusJSON</code></li>
+<li>Settings applied (<code>updateSettings0/1</code>)</li>
+<li>Flow run accepted; job reaches <code>completed</code></li>
+<li>Flow response: <code>numSuccess</code>, <code>numError</code>, <code>status</code></li>
+<li>Negative TCs: HTTP 422 on bad on-demand settings</li>
+</ul>
+</div>
+<div>
+<h3>NetSuite (cash sale)</h3>
+<ul>
+<li><code>verifyCashsaleDataFromNetsuite</code> via NS proxy</li>
+<li>Line items: Item name, Quantity, Item Rate</li>
+<li>eTail fields: Order Id, Channel, Currency</li>
+<li>Variance fields must be <strong>0</strong> (tax, discount, ship, total)</li>
+<li>Lookup by Square order ID (<code>uniqueValue</code>)</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section id="example">
+<h2>9. Example TC — PRE-T16526 (Batch8SerialMulti)</h2>
+<table>
+<tr><th>Artifact</th><th>Path</th></tr>
+<tr><td>Testcase entry</td><td><code>testcases/.../Batch8_OrderImport.json</code> → <code>Batch8SerialMulti</code></td></tr>
+<tr><td>createOrder</td><td><code>test-data/.../Batch8/PRET16526/Batch8SerialMulti_createOrder.json</code></td></tr>
+<tr><td>settings0</td><td><code>.../Batch8SerialMulti_updateSettings0.json</code> (auto-assign lot/serial)</td></tr>
+<tr><td>settings1</td><td><code>.../Batch8SerialMulti_updateSettings1.json</code> (on-demand sync)</td></tr>
+<tr><td>expectedResponse</td><td><code>.../Batch8SerialMulti_expectedResponse1.json</code></td></tr>
+<tr><td>flow_response</td><td><code>.../Batch8SerialMulti_flow_response1.json</code></td></tr>
+<tr><td>Scenario</td><td><code>SERIAL_MULTI</code> in squareOrderScenarios.js</td></tr>
+<tr><td>Handler</td><td><code>createSquareOrderSerialMulti</code> in squareDataCreation.js</td></tr>
+</table>
+<h3>Expected NS payload (excerpt)</h3>
+<pre>{
+  "cashSale_line_items": [{ "Item": "...", "Quantity": "2", "Item Rate": "19.40" }],
+  "eTail Order Total Variance": "0",
+  "eTail Order Id": "{{PRET16526squareOrderId}}",
+  "eTail Channel": "Square"
+}</pre>
+</section>
+
+<section id="errors">
+<h2>10. Error Handling & Stability</h2>
+<table>
+<tr><th>Mechanism</th><th>Where</th><th>Handles</th></tr>
+<tr><td><code>TEST_MAX_RETRIES=3</code></td><td>Framework</td><td>Transient test failures</td></tr>
+<tr><td><code>runSquareOrderFlowWithRetry</code></td><td>squareDataCreation.js</td><td>409 job_already_queued (6 retries, 10s gap)</td></tr>
+<tr><td><code>waitForSquareOrderFlowIdle</code></td><td>Pre/post flow run</td><td>Flow still queued/running</td></tr>
+<tr><td><code>squareStaticDelay</code></td><td>30s before flow (batch8)</td><td>On-demand sync race</td></tr>
+<tr><td>Square transient retry</td><td>global.spec.ts</td><td>409, timeout when PBI=SQNS</td></tr>
+<tr><td><code>dontStopExecutionOnFailure</code></td><td>flow_response step</td><td>Flow partial validation; NS is source of truth</td></tr>
+<tr><td>Settings isolation</td><td>Per-TC settings0</td><td>Prevents leakage between TCs</td></tr>
+<tr><td><code>flowMaxWait: 10</code></td><td>Batch8 generator</td><td>10 <strong>minutes</strong> max flow poll (framework unit)</td></tr>
+</table>
+</section>
+
+<section id="reports">
+<h2>11. Reports & Tracking</h2>
+<ul>
+<li><code>report/index.html</code> — Jest HTML reporter (latest run)</li>
+<li><code>report/square_order_import_report_latest.html</code> — Custom inventory report</li>
+<li><code>report/square_run_history_dashboard.html</code> — All runs × TC status</li>
+<li><code>.test-state/batch{N}.json</code> — Resume state (order IDs, cash sale IDs)</li>
+<li><code>logs/test-run-dev-Square_Suite-*.log</code> — Structured run logs</li>
+<li>Report Portal — when <code>RP_REPORT_OPTION=remote</code> + API key</li>
+</ul>
+<p>Generate docs: <code>node scripts/generateSquareTeamDocs.js</code></p>
+</section>
+
+</main>
+<script>mermaid.initialize({startOnLoad:true,theme:'dark'});</script>
+</body>
+</html>

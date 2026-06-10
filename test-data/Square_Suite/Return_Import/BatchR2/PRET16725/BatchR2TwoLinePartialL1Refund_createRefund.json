@@ -1,0 +1,6 @@
+{
+  "orderKeyPrefix": "PRET16725",
+  "refundKind": "partial_line_index",
+  "refundSettleMs": 35000,
+  "lineIndex": 1
+}

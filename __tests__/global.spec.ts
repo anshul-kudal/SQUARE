@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { Logger } from "@celigo/aut-logger";
 import { runSpec, validateResponse, validateStatusCode, handleDataValidation, pre_request_validation } from "@celigo/rest-api-ia-automation";
+import { ia } from "../config/ia";
 import { resetAdvanceSettings, resetFlowStatus, restorePendingMappings } from "@celigo/rest-api-ia-automation";
 
 let _isTransientFailure: (err: any, resp?: any) => boolean;
@@ -24,18 +25,6 @@ if (!_isTransientFailure) {
     const cat = _classifyFailure(err);
     return ['NLB_TIMEOUT', 'NS_RATE_LIMIT', 'NS_TRANSIENT', 'NO_DATA', 'CONVERGENCE_TIMEOUT', 'NS_SCRIPT_TIMEOUT'].includes(cat);
   };
-}
-
-function isSquareTransientFailure(err: any): boolean {
-  const msg = String(err?.message || err || '');
-  return /409|job_already_queued|ENOTFOUND|ECONNRESET|ETIMEDOUT|EAI_AGAIN|VALIDATION_FAILED|verifyCashsaleDataFromNetsuite|timeout of \d+ms exceeded|exceeded timeout/i.test(msg);
-}
-
-function shouldRetry(err: any): boolean {
-  if (process.env.PBI === 'SQNS') {
-    return isSquareTransientFailure(err) || _isTransientFailure(err);
-  }
-  return _isTransientFailure(err);
 }
 
 const logDir = path.join(process.cwd(), 'logs');
@@ -87,7 +76,7 @@ function loadState(tag: string): Map<string, any> | null {
 }
 
 
-describe(`SQUARE IA API TEST EXECUTION`, function () {
+describe(`SHOPIFY IA API TEST EXECUTION`, function () {
  const td1 = Array.isArray(global.inputData) ? global.inputData : [];
  let uniqueIds = new Map();
 
@@ -138,8 +127,17 @@ describe(`SQUARE IA API TEST EXECUTION`, function () {
              process.env.DEPRECATED_FLOW_LIST_PATH = deprecatedListPath;
            }
            Logger.info(`Running Reset Advance Settings For : ${t?.suite}`);
-           await resetFlowStatus({ "request": { "payload": "/config/resetFlowStatus_Square.json" } }, uniqueIds, t?.storeName);
-           await resetAdvanceSettings({ "request": { "payload": "/config/resetSettings_Square.json" } }, uniqueIds, t?.storeName);
+           const isSquare = process.env.PBI === "SQNS";
+           await resetFlowStatus(
+             { "request": { "payload": isSquare ? "/config/resetFlowStatus_Square.json" : "/config/resetFlowStatus.json" } },
+             uniqueIds,
+             t?.storeName
+           );
+           await resetAdvanceSettings(
+             { "request": { "payload": isSquare ? "/config/resetSettings_Square.json" : "/config/resetSettings.json" } },
+             uniqueIds,
+             t?.storeName
+           );
          });
          // Restore any import mappings that were modified by this testcase's
          // interactions (e.g. updateMappingsThruAPI / deleteFlowMappingThruAPI
@@ -177,7 +175,7 @@ describe(`SQUARE IA API TEST EXECUTION`, function () {
            if (i?.test_title && !i.test_title.includes("skip")) {
              it(`${i?.test_title} with ${i?.request?.path}`, async () => {
               global.testCaseStartTime = new Date();
-              process.env.testCaseName = (i as any).test || i.test_title?.split(' ')?.[0] || '';
+              process.env.testCaseName = i.test_title;
               process.env.testStepLabel = '';
               try {
               let lastError: any = null;
@@ -189,12 +187,15 @@ describe(`SQUARE IA API TEST EXECUTION`, function () {
                     await sleep(delayMs);
                   }
 
-                  Logger.info(`Running Test Case : ${i?.test_title}${attempt > 0 ? ` (attempt ${attempt + 1})` : ''}`);
-                  uniqueIds.set("test_title", i?.test_title);
-                  const isResumedInteraction = resumeInteraction && i?.test_title?.startsWith(resumeInteraction);
+                  // Fresh copy each attempt so handleStoreDetails filterKey mutation is not cumulative on retry.
+                  const interaction = structuredClone(i);
+
+                  Logger.info(`Running Test Case : ${interaction?.test_title}${attempt > 0 ? ` (attempt ${attempt + 1})` : ''}`);
+                  uniqueIds.set("test_title", interaction?.test_title);
+                  const isResumedInteraction = resumeInteraction && interaction?.test_title?.startsWith(resumeInteraction);
                   const skipPreIdx = isResumedInteraction && resumeIdx ? resumeIdx : null;
-                  if (Array.isArray(i?.pre_request)) {
-                    const pre = i.pre_request;
+                  if (Array.isArray(interaction?.pre_request)) {
+                    const pre = interaction.pre_request;
                     for (let idx = 0; idx < pre.length; idx++) {
                       if (skipPreIdx === 'main') continue;
                       if (skipPreIdx && idx < parseInt(skipPreIdx)) continue;
@@ -212,32 +213,32 @@ describe(`SQUARE IA API TEST EXECUTION`, function () {
                   uniqueIds.forEach((v: unknown, k: string) => { mapSnapshot[k] = v; });
                   Logger.info("MAP >> " + JSON.stringify(mapSnapshot));
                   process.env.testStepLabel = 'validation';
-                  if (skipPreIdx === 'main' && !i?.response?.hasOwnProperty("dataValidationMethod")) {
+                  if (skipPreIdx === 'main' && !interaction?.response?.hasOwnProperty("dataValidationMethod")) {
                     Logger.info(`Skipping main request — resuming validation only`);
                   }
-                  if (i?.response?.hasOwnProperty("dataValidationMethod")) {
-                    await handleDataValidation(i, uniqueIds);
+                  if (interaction?.response?.hasOwnProperty("dataValidationMethod")) {
+                    await handleDataValidation(interaction, uniqueIds);
                   } else {
-                    await executeAPIRequest(uniqueIds, i, false);
+                    await executeAPIRequest(uniqueIds, interaction, false);
                   }
                   saveState(process.env.TAG, uniqueIds);
 
                   if (attempt > 0) {
                     (global as any).__retryStats.recoveredAfterRetry++;
                     (global as any).__retryStats.details.push({
-                      test: i.test_title,
+                      test: interaction.test_title,
                       attempts: attempt + 1,
                       finalCategory: 'RECOVERED',
                       recovered: true,
                     });
-                    Logger.info(`[RETRY] "${i.test_title}" RECOVERED on attempt ${attempt + 1}`);
+                    Logger.info(`[RETRY] "${interaction.test_title}" RECOVERED on attempt ${attempt + 1}`);
                   }
                   lastError = null;
                   break;
                 } catch (err) {
                   lastError = err;
                     const category = _classifyFailure(err);
-                    const isTransient = shouldRetry(err);
+                    const isTransient = _isTransientFailure(err);
                   Logger.error(`[RETRY] "${i.test_title}" attempt ${attempt + 1} failed — [${category}] ${(err as Error).message}`);
 
                   if (!isTransient || attempt >= MAX_RETRIES) {

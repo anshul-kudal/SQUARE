@@ -4,6 +4,7 @@
 const crypto = require("crypto");
 const { Logger } = require("@celigo/aut-logger");
 const { SCENARIOS } = require("./squareOrderScenarios");
+const { RETURN_ORDER_SCENARIOS, REFUND_KINDS } = require("./squareReturnScenarios");
 
 const SQUARE_API_VERSION = "2024-01-17";
 
@@ -198,11 +199,22 @@ function buildOrderBody({ locationId, lineSpecs, orderDiscounts, tipCents, custo
     };
 
     if (spec.modifiers?.length) {
-      line.modifiers = spec.modifiers.map((m) => {
-        const modId = loadModifierId(m.modifierKey || 1);
-        if (!modId) return null;
-        return { catalog_object_id: modId, quantity: String(m.qty || 1) };
-      }).filter(Boolean);
+      const usedModIds = new Set();
+      line.modifiers = [];
+      for (const m of spec.modifiers) {
+        let modId = loadModifierId(m.modifierKey || 1);
+        if (!modId) continue;
+        if (usedModIds.has(modId)) {
+          const alt = loadModifierId(m.modifierKey === 2 ? 1 : 2);
+          if (alt && !usedModIds.has(alt)) modId = alt;
+          else continue;
+        }
+        usedModIds.add(modId);
+        line.modifiers.push({
+          catalog_object_id: modId,
+          quantity: String(m.qty || 1),
+        });
+      }
     }
 
     if (!Number.isInteger(spec.qty) && spec.qty != null && !spec.variationId) {
@@ -321,10 +333,12 @@ async function payOrderWithPayments(token, orderId, paymentIds) {
   }, token);
 }
 
+/** @returns {string|null} primary payment id for Refunds API */
 async function applyScenarioPayment(token, order, locationId, payment) {
-  if (!payment) return;
+  if (!payment) return null;
   const total = order.total_money?.amount || 0;
   const paymentIds = [];
+  let lastPaymentId = null;
 
   if (payment.giftCardFull) {
     const gcId = await createGiftCard(token, locationId, total);
@@ -336,8 +350,9 @@ async function applyScenarioPayment(token, order, locationId, payment) {
       autocomplete: false,
     });
     paymentIds.push(p.payment.id);
+    lastPaymentId = p.payment.id;
     await payOrderWithPayments(token, order.id, paymentIds);
-    return;
+    return lastPaymentId;
   }
   if (payment.giftCardPartial) {
     const partial = Math.max(100, Math.min(Math.floor(total / 2), total - 100));
@@ -357,7 +372,7 @@ async function applyScenarioPayment(token, order, locationId, payment) {
       autocomplete: false,
     });
     await payOrderWithPayments(token, order.id, [p1.payment.id, p2.payment.id]);
-    return;
+    return p2.payment.id;
   }
   if (payment.split?.length) {
     let paid = 0;
@@ -375,11 +390,18 @@ async function applyScenarioPayment(token, order, locationId, payment) {
       paymentIds.push(p.payment.id);
     }
     await payOrderWithPayments(token, order.id, paymentIds);
-    return;
+    return paymentIds[paymentIds.length - 1] || null;
   }
   if (payment.type) {
-    await payOrderAmount(token, { orderId: order.id, locationId, amountCents: total, type: payment.type });
+    const p = await payOrderAmount(token, {
+      orderId: order.id,
+      locationId,
+      amountCents: total,
+      type: payment.type,
+    });
+    return p.payment.id;
   }
+  return null;
 }
 
 function storeOrderKeys(map, prefix, squareOrderId, locationId) {
@@ -388,8 +410,8 @@ function storeOrderKeys(map, prefix, squareOrderId, locationId) {
   map.set(`${prefix}onDemandOrderSync`, onDemandSync);
 }
 
-async function createOrderForScenario(scenarioName, map, prefix) {
-  const scenario = SCENARIOS[scenarioName];
+async function createOrderForScenario(scenarioName, map, prefix, scenarioOverride) {
+  const scenario = scenarioOverride || SCENARIOS[scenarioName];
   if (!scenario) throw new Error(`Unknown Square scenario: ${scenarioName}`);
 
   const token = decodeSquareToken();
@@ -428,7 +450,8 @@ async function createOrderForScenario(scenarioName, map, prefix) {
   storeOrderKeys(map, prefix, order.id, locationId);
 
   if (scenario.payment) {
-    await applyScenarioPayment(token, order, locationId, scenario.payment);
+    const paymentId = await applyScenarioPayment(token, order, locationId, scenario.payment);
+    if (paymentId) map.set(`${prefix}squarePaymentId`, paymentId);
   }
 
   Logger.info(
@@ -620,6 +643,324 @@ async function createSquareOrderSC1(_data, map) {
   return createOrderForScenario("ORDER_DISCOUNT_25", map, "PRE25603SC1");
 }
 
+function readPayloadJson(data) {
+  const payloadPath = data?.request?.payload;
+  if (typeof payloadPath !== "string" || !payloadPath.endsWith(".json")) return {};
+  try {
+    const fs = require("fs");
+    const path = require("path");
+    const full = path.join(process.env.PWD || ".", payloadPath.replace(/^\//, ""));
+    return JSON.parse(fs.readFileSync(full, "utf8"));
+  } catch (e) {
+    Logger.warn(`[Square] Could not read payload: ${e.message}`);
+    return {};
+  }
+}
+
+async function resolveSquarePaymentId(token, orderId, locationId, map, prefix) {
+  let paymentId = map.get(`${prefix}squarePaymentId`);
+  if (paymentId) return paymentId;
+  const res = await squareRequest(
+    "GET",
+    `/v2/payments?order_id=${encodeURIComponent(orderId)}&location_id=${encodeURIComponent(locationId)}&sort_order=DESC&limit=10`,
+    null,
+    token
+  );
+  paymentId = res.payments?.[0]?.id;
+  if (!paymentId) {
+    throw new Error(`[Square] No payment found for order ${orderId}`);
+  }
+  map.set(`${prefix}squarePaymentId`, paymentId);
+  return paymentId;
+}
+
+async function createSquareReturnOrder(data, map) {
+  const payload = readPayloadJson(data);
+  const prefix = resolveOrderKeyPrefix(data, payload.orderScenario || "RETURN");
+  const scenarioName = payload.orderScenario || "RETURN_SINGLE_LINE";
+  const scenario = RETURN_ORDER_SCENARIOS[scenarioName];
+  if (!scenario) throw new Error(`Unknown Square return order scenario: ${scenarioName}`);
+  return createOrderForScenario(scenarioName, map, prefix, scenario);
+}
+
+async function createSquareRefund(data, map) {
+  const payload = readPayloadJson(data);
+  const prefix = resolveOrderKeyPrefix(data, "REFUND");
+  const token = decodeSquareToken();
+  const locationId = process.env["SQUARE_PRIMARY_STORE_DATA.LOCATION_ID"];
+  const orderId = map.get(`${prefix}squareOrderId`);
+  if (!orderId) throw new Error("[Square] squareOrderId missing before refund");
+
+  const paymentId = await resolveSquarePaymentId(token, orderId, locationId, map, prefix);
+  const orderRes = await squareRequest("GET", `/v2/orders/${orderId}`, null, token);
+  const order = orderRes.order;
+  const totalCents = order.total_money?.amount || 0;
+
+  const kind = payload.refundKind || REFUND_KINDS.FULL;
+  let amountCents = totalCents;
+  if (kind === REFUND_KINDS.HALF_AMOUNT) {
+    amountCents = Math.max(1, Math.floor(totalCents / 2));
+  } else if (kind === REFUND_KINDS.PARTIAL_PCT) {
+    const pct = payload.refundPct ?? 0.25;
+    amountCents = Math.max(1, Math.floor(totalCents * pct));
+  } else if (kind === REFUND_KINDS.PARTIAL_QTY) {
+    const refundQty = payload.refundQty ?? 1;
+    const idx = payload.lineIndex ?? 0;
+    const li = order.line_items?.[idx];
+    const qty = parseFloat(li?.quantity || "1");
+    const lineTotal = li?.total_money?.amount || totalCents;
+    amountCents = Math.max(1, Math.round((lineTotal / qty) * Math.min(refundQty, qty)));
+  } else if (kind === REFUND_KINDS.FIXED_CENTS) {
+    amountCents = payload.refundAmountCents ?? 500;
+  } else if (kind === REFUND_KINDS.ONE_LINE_ESTIMATE) {
+    const lineTotal = order.line_items?.[0]?.total_money?.amount;
+    amountCents = lineTotal || Math.floor(totalCents / 2);
+  } else if (kind === REFUND_KINDS.PARTIAL_LINE_INDEX) {
+    const idx = payload.lineIndex ?? 0;
+    const li = order.line_items?.[idx];
+    amountCents = li?.total_money?.amount || Math.max(1, Math.floor(totalCents / 2));
+  } else if (kind === REFUND_KINDS.ONE_UNIT) {
+    const li = order.line_items?.[0];
+    const qty = parseFloat(li?.quantity || "1");
+    const lineTotal = li?.total_money?.amount || totalCents;
+    amountCents = Math.max(1, Math.round(lineTotal / qty));
+  }
+
+  Logger.info(
+    `[Square] Refund kind=${kind} amount=${amountCents}c order=${orderId} payment=${paymentId}`
+  );
+
+  const refundRes = await squareRequest(
+    "POST",
+    "/v2/refunds",
+    {
+      idempotency_key: crypto.randomUUID(),
+      payment_id: paymentId,
+      amount_money: { amount: amountCents, currency: "USD" },
+      reason: "Square automation refund",
+    },
+    token
+  );
+
+  const refundId = refundRes.refund.id;
+  const refundToken = refundId.includes("_") ? refundId.split("_").pop() : refundId;
+  map.set(`${prefix}squareRefundId`, refundId);
+  map.set(`${prefix}squareRefundToken`, refundToken);
+  map.set(`${prefix}onDemandRefundSync`, `${locationId}-${refundToken}`);
+  Logger.info(
+    `[Square] Refund ${refundId} (token=${refundToken}) | on-demand sync=${map.get(`${prefix}onDemandRefundSync`)}`
+  );
+
+  const settleMs = payload.refundSettleMs ?? 35000;
+  if (settleMs > 0) {
+    Logger.info(`[Square] Waiting ${settleMs}ms for refund to settle`);
+    await delay(settleMs);
+  }
+  return { status: 200, body: refundRes };
+}
+
+function isHttpOk(status) {
+  return status >= 200 && status < 300;
+}
+
+/** POST connection export (must send body — bare POST returned 401). */
+async function postSquareConnectionExport() {
+  const { apiRequestWithPayload } = require("@celigo/rest-api-ia-automation/dist/src/helper/apiCalls");
+  const connectionId = process.env["CONNECTIONS.SQUARE"];
+  if (!global.baseURL || !global.AUTH_TOKEN) {
+    throw new Error("[Square] global.baseURL/AUTH_TOKEN not initialized before refund export");
+  }
+  return apiRequestWithPayload(
+    "POST",
+    global.baseURL,
+    `/connections/${connectionId}/export`,
+    {},
+    global.AUTH_TOKEN,
+    global.CONTENT_TYPE || "application/json"
+  );
+}
+
+/** Probe IO on-demand refund setting until a sync key is accepted (422 = unknown refund). */
+async function probeRefundOnDemandSync(map, prefix, candidates) {
+  const { handleSettings } = require("@celigo/rest-api-ia-automation/dist/src/helper/settings");
+  const integrationId = map.get(`${prefix}integrationID`);
+  if (!integrationId) return null;
+
+  const prevTestCase = process.env.testCaseName;
+  process.env.testCaseName = `${prefix}RefundProbe`;
+
+  try {
+    for (const syncValue of candidates) {
+      map.set(`${prefix}onDemandRefundSync`, syncValue);
+      const data = {
+        request: {
+          method: "PUT",
+          path: `/integrations/{{${prefix}integrationID}}/settings/persistSettings`,
+          payload: {
+            "On-demand refund sync": `{{${prefix}onDemandRefundSync}}`,
+          },
+          settingsMethod: "updateSettings",
+        },
+      };
+      try {
+        const res = await handleSettings(data, map);
+        const ok =
+          res &&
+          (res.status === undefined || isHttpOk(res.status)) &&
+          res?.body?.success !== false;
+        if (ok) {
+          Logger.info(`[Square] On-demand refund sync accepted: ${syncValue}`);
+          return syncValue;
+        }
+      } catch (err) {
+        const msg = String(err?.message || err);
+        if (/not valid Refunds|422/.test(msg)) {
+          Logger.info(`[Square] Refund sync not indexed yet: ${syncValue}`);
+          continue;
+        }
+        throw err;
+      }
+    }
+    return null;
+  } finally {
+    if (prevTestCase !== undefined) process.env.testCaseName = prevTestCase;
+  }
+}
+
+function buildRefundSyncCandidates(map, prefix) {
+  const locationId = process.env["SQUARE_PRIMARY_STORE_DATA.LOCATION_ID"];
+  const orderId = map.get(`${prefix}squareOrderId`);
+  const refundId = map.get(`${prefix}squareRefundId`);
+  const refundToken = map.get(`${prefix}squareRefundToken`);
+  return [
+    refundToken ? `${locationId}-${refundToken}` : null,
+    refundId ? `${locationId}-${refundId}` : null,
+    orderId && refundToken ? `${locationId}-${orderId}-${refundToken}` : null,
+    orderId ? `${locationId}-${orderId}` : null,
+  ].filter(Boolean);
+}
+
+/**
+ * Poll until IO accepts an on-demand refund sync key (422 = refund not indexed yet).
+ * Connection export often returns 401 for API tokens; we still poll for scheduled indexing.
+ */
+function exportPermissionError() {
+  return (
+    "[Square] Integrator API token cannot POST /connections/.../export (401 access_restricted). " +
+    "Regenerate Integrator.token in env/E2E_Square.env with connection export permission, " +
+    "then run: NODE_ENV=dev SETUP=E2E_Square node scripts/squareIoExportPreflight.js"
+  );
+}
+
+async function ensureOnDemandRefundSync(data, map) {
+  const prefix = resolveOrderKeyPrefix(data, "REFUND_ENSURE");
+  const candidates = buildRefundSyncCandidates(map, prefix);
+  const maxWaitMs = data?.request?.refundIndexMaxWaitMs ?? 180000;
+  const pollMs = data?.request?.refundIndexPollMs ?? 10000;
+  let exportEnabled = data?.request?.attemptExport !== false;
+  const failFastOnExport401 = data?.request?.failFastOnExport401 !== false;
+
+  const prevTestCase = process.env.testCaseName;
+  const started = Date.now();
+  let pass = 0;
+
+  while (Date.now() - started < maxWaitMs) {
+    pass += 1;
+    if (exportEnabled) {
+      const res = await postSquareConnectionExport();
+      Logger.info(`[Square] Refund index pass ${pass} export status=${res?.status}`);
+      if (res?.status === 401) {
+        exportEnabled = false;
+        if (failFastOnExport401) {
+          throw new Error(exportPermissionError());
+        }
+        Logger.warn(
+          "[Square] Connection export denied (401); relying on IO scheduled refund indexing"
+        );
+      }
+    }
+    const accepted = await probeRefundOnDemandSync(map, prefix, candidates);
+    if (accepted) {
+      if (prevTestCase !== undefined) process.env.testCaseName = prevTestCase;
+      Logger.info(`[Square] On-demand refund sync ready after ${pass} pass(es): ${accepted}`);
+      return { status: 200, body: { accepted, pass } };
+    }
+    Logger.info(
+      `[Square] Refund not indexed yet (pass ${pass}); retry in ${pollMs / 1000}s`
+    );
+    await delay(pollMs);
+  }
+
+  if (prevTestCase !== undefined) process.env.testCaseName = prevTestCase;
+  throw new Error(
+    `[Square] Refund not indexed in IO after ${maxWaitMs}ms; tried keys: ${candidates.join(", ")}`
+  );
+}
+
+/** @deprecated Use ensureOnDemandRefundSync */
+async function syncSquareRefundToIo(data, map) {
+  return ensureOnDemandRefundSync(data, map);
+}
+
+async function waitForSquareRefundFlowIdle(data, map) {
+  const { getInQueueStatus, getInProgressStatus, getFlowID } = require("@celigo/rest-api-ia-automation/dist/src/helper/settings");
+  const prefix = resolveOrderKeyPrefix(data, "REFUND_IDLE");
+  const flowIdKey = `${prefix}flowId2`;
+  let flowId = map.get(flowIdKey);
+  const flowName =
+    map.get("FLOW_NAME2") || "Square Refund to NetSuite Cash Refund [TestAccount-1 anshul]";
+  if (!flowId) {
+    flowId = await getFlowID(flowName);
+    map.set(flowIdKey, flowId);
+  }
+
+  const maxWaitSec = data?.request?.flowIdleMaxWaitSec || 300;
+  const pollSec = 3;
+  let elapsed = 0;
+
+  while (elapsed < maxWaitSec) {
+    const queued = await getInQueueStatus(flowName, flowId);
+    const running = await getInProgressStatus(flowName, flowId);
+    if (!queued && !running) {
+      Logger.info(`[Square] Refund flow idle after ${elapsed}s`);
+      return { status: 200, body: { idle: true, waitedSec: elapsed } };
+    }
+    await delay(pollSec * 1000);
+    elapsed += pollSec;
+  }
+  throw new Error(`[Square] Refund flow still busy after ${maxWaitSec}s`);
+}
+
+async function runSquareRefundFlowWithRetry(data, map) {
+  const { apiRequest } = require("@celigo/rest-api-ia-automation/dist/src/helper/apiCalls");
+  const prefix = resolveOrderKeyPrefix(data, "REFUND_RUN");
+  const flowId = map.get(`${prefix}flowId2`);
+  if (!flowId) throw new Error("[Square] flowId2 not found for refund flow run");
+
+  const maxRetries = data?.request?.flowRunMaxRetries ?? 6;
+  const retryDelayMs = data?.request?.flowRunRetryDelayMs ?? 10000;
+  const token = global.AUTH_TOKEN;
+  const baseURL = global.baseURL;
+  const contentType = global.CONTENT_TYPE;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    const res = await apiRequest("POST", baseURL, `/flows/${flowId}/run`, token, contentType);
+    const status = res?.status;
+    if (status >= 200 && status < 300) {
+      Logger.info(`[Square] Refund flow run accepted (attempt ${attempt}/${maxRetries})`);
+      return res;
+    }
+    const body = res?.text || JSON.stringify(res?.body || {});
+    if (status === 409 && /job_already_queued/.test(body) && attempt < maxRetries) {
+      await delay(retryDelayMs);
+      await waitForSquareRefundFlowIdle(data, map);
+      continue;
+    }
+    throw new Error(`[Square] Refund flow run failed status=${status}: ${body}`);
+  }
+  throw new Error(`[Square] Refund flow run failed after ${maxRetries} attempts`);
+}
+
 async function createSquareOrderFromPayload(data, map) {
   let scenario = "SINGLE_LINE_BASE";
   const payloadPath = data?.request?.payload;
@@ -709,11 +1050,20 @@ const squareDataCreationHandlers = {
   createSquareOrderNewCustomerSingle: makeScenarioHandler("NEW_CUSTOMER_SINGLE"),
   createSquareOrderNewCustomerNoEmail: makeScenarioHandler("NEW_CUSTOMER_NO_EMAIL"),
   createSquareOrderTipVarianceCheck: makeScenarioHandler("TIP_VARIANCE_CHECK"),
+  createSquareReturnOrder,
+  createSquareRefund,
+  ensureOnDemandRefundSync,
+  syncSquareRefundToIo,
+  waitForSquareRefundFlowIdle,
+  runSquareRefundFlowWithRetry,
 };
 
 module.exports = {
   squareDataCreationHandlers,
   createSquareOrderSC1,
   createOrderForScenario,
+  waitForSquareOrderFlowIdle,
+  runSquareOrderFlowWithRetry,
+  squareStaticDelay,
   SCENARIOS,
 };

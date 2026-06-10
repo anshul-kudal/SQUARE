@@ -31,9 +31,37 @@ function writeJson(filePath, obj) {
   fs.writeFileSync(filePath, JSON.stringify(obj, null, 2) + "\n");
 }
 
+function netRate(baseRate, discountPct) {
+  const base = parseFloat(baseRate);
+  if (Number.isNaN(base)) return baseRate;
+  return (base * (1 - discountPct)).toFixed(2);
+}
+
+function compoundNetRate(baseRate, ...discountPcts) {
+  let r = parseFloat(baseRate);
+  if (Number.isNaN(r)) return baseRate;
+  for (const pct of discountPcts) r *= 1 - pct;
+  return r.toFixed(2);
+}
+
+/** IO maps line-level Square discounts as adjusted item rates (not DIS00000 lines). */
 function buildExpected(keyPrefix, exp) {
   const cashSaleLines = [];
-  for (const p of exp.products || []) {
+  const products = (exp.products || []).map((p) => ({ ...p }));
+
+  if (exp.lineDiscountAsAdjustment) {
+    for (const p of products) {
+      if (p.rate == null || p.applyLineDiscount === false) continue;
+      const linePct = p.lineDiscountPct ?? exp.lineDiscountPct ?? 0.25;
+      const cartPct = p.cartDiscountPct ?? exp.cartDiscountPct ?? 0;
+      p.rate =
+        cartPct > 0
+          ? compoundNetRate(p.rate, linePct, cartPct)
+          : netRate(p.rate, linePct);
+    }
+  }
+
+  for (const p of products) {
     const line = {
       Item: `process.env[DEFAULTS.PRODUCTS.${p.sku}.SKU]`,
       Quantity: String(p.qty ?? 1),
@@ -41,7 +69,9 @@ function buildExpected(keyPrefix, exp) {
     if (p.rate) line["Item Rate"] = p.rate;
     cashSaleLines.push(line);
   }
-  for (const d of exp.discounts || []) {
+
+  const discountLines = exp.lineDiscountAsAdjustment ? [] : exp.discounts || [];
+  for (const d of discountLines) {
     if (d.anyDiscount) {
       cashSaleLines.push({ Item: "DIS00000", "eTail Order Item Type Id": "" });
     } else {
@@ -94,7 +124,7 @@ const flowResponseError = {
   numPagesWithErrors: 0,
 };
 
-/** Flow stability profiles — quick tuned for full-suite (no 409s observed at 120s idle). */
+/** Flow stability profiles — quick for single-batch; fullsuite for all batches 1–9 together. */
 const FLOW_PROFILES = {
   default: {
     flowMaxWait: 10,
@@ -111,6 +141,15 @@ const FLOW_PROFILES = {
     staticDelayBeforeFlowRun: 10000,
     flowRunWithRetry: true,
     nsSettleDelayMs: 5000,
+  },
+  /** All 125 TCs in one run: shorter waits than legacy batch8 (30s+10m) but enough idle for 409s. */
+  fullsuite: {
+    flowMaxWait: 5,
+    flowIdleMaxWaitSec: 90,
+    postFlowIdleMaxWaitSec: 25,
+    staticDelayBeforeFlowRun: 8000,
+    flowRunWithRetry: true,
+    nsSettleDelayMs: 6000,
   },
 };
 
@@ -397,6 +436,8 @@ function settings0Default(extra = {}) {
 module.exports = {
   generateBatch,
   buildExpected,
+  netRate,
+  compoundNetRate,
   settings0Default,
   flowStatus,
   flowResponse,

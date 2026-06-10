@@ -109,6 +109,37 @@ RESUME=Batch5PayMapDefault env NODE_ENV=dev SETUP=E2E_Square PBI=SQNS \
 
 State is saved in `.test-state/{TAG}.json`.
 
+## Return / Refund suites
+
+Square Return → NetSuite Cash Refund batches (order leg + refund leg):
+
+| Batch | TAG | File |
+|-------|-----|------|
+| Smoke | `return_smoke` | `testcases/Square_Suite/Return_Import/BatchR0_ReturnSmoke.json` |
+| R1 | `batchr1` | `testcases/Square_Suite/Return_Import/BatchR1_SingleLineAmount.json` |
+| R2 | `batchr2` | `testcases/Square_Suite/Return_Import/BatchR2_MultiLinePartial.json` |
+
+```bash
+npm run square:return            # all return batches
+node scripts/squareIoExportPreflight.js   # verify IO token can index refunds
+```
+
+Refunds require the Integrator.io API token to have **connection export/import**
+permission (otherwise IO returns `422 not valid Refunds`). Run the preflight first.
+
+## Publish results to Zephyr Scale
+
+Create a timestamped test cycle in the latest release folder, with one execution per
+TC (Pass/Fail), assigned to you, and a comment containing the Square Order ID + NS
+Cash Sale ID as proof. See the skill at
+[.cursor/skills/square-zephyr-publish/SKILL.md](.cursor/skills/square-zephyr-publish/SKILL.md).
+
+```bash
+cp env/zephyr.env.example env/zephyr.env   # fill in token + accountId
+ZEPHYR_PUBLISH=1 npm run square:demo -- 1-2   # auto-publish after a demo run
+node scripts/publishToZephyr.js /tmp/square_demo_run.log   # publish a past run
+```
+
 ## Documentation
 
 See [docs/square-automation-guide.md](docs/square-automation-guide.md) for architecture, flow pipeline, stability settings, and batch inventory.

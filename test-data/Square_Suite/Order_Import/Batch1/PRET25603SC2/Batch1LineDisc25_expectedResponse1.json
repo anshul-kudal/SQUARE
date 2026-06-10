@@ -8,13 +8,7 @@
     {
       "Item": "process.env[DEFAULTS.PRODUCTS.0.SKU]",
       "Quantity": "1",
-      "Item Rate": "19.40"
-    },
-    {
-      "Item": "DIS00000",
-      "Item Rate": "-4.85",
-      "Amount (Foreign Currency)": "-4.85",
-      "eTail Order Item Type Id": ""
+      "Item Rate": "14.55"
     }
   ],
   "CustomerDepositDetails": [],

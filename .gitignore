@@ -10,5 +10,9 @@ report/*
 .cache/*
 .test-state/*
 .cursor/*
+# Share the Square→Zephyr publishing skill with anyone cloning the repo
+!.cursor/skills/
+.cursor/skills/*
+!.cursor/skills/square-zephyr-publish/
 logs/*
 config/squareCatalogIds.json

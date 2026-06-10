@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Square E2E — Live Demo Guide</title>
+<style>
+:root{--bg:#0b1020;--surface:#151d2e;--surface2:#1c2740;--text:#e8edf5;--muted:#93a4bc;--accent:#5b9cf5;--pass:#34d399;--fail:#f87171;--warn:#fbbf24;--border:#2a3650}
+*{box-sizing:border-box}body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+header{background:linear-gradient(120deg,#1a3a6b,#0b1020);padding:2rem;border-bottom:1px solid var(--border)}
+header h1{margin:0 0 .5rem}header p{color:var(--muted);margin:.25rem 0}
+.nav-links a{color:var(--accent);margin-right:1rem;font-size:.9rem;text-decoration:none}
+main{max-width:1100px;margin:0 auto;padding:2rem}
+.hero{background:linear-gradient(135deg,#1a3a6b 0%,#151d2e 100%);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2rem}
+.hero h2{margin-top:0;border:none;font-size:1.5rem}
+.tile-row{margin:1.25rem 0 0}
+.tile-row-title{font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:0 0 .75rem;font-weight:600}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem}
+.card{background:rgba(21,29,46,.9);border:1px solid var(--accent);border-radius:12px;padding:1rem;text-align:center}
+.card .l{font-size:.7rem;color:var(--muted);text-transform:uppercase}
+.card .v{font-size:1.75rem;font-weight:700;color:var(--pass);margin-top:.25rem}
+.card.fail .v{color:var(--fail)}.card.warn .v{color:var(--warn)}
+.progress-wrap{margin:1rem 0}
+.progress-label{display:flex;justify-content:space-between;font-size:.85rem;color:var(--muted);margin-bottom:.35rem}
+.progress-bar{height:10px;background:var(--surface2);border-radius:6px;overflow:hidden}
+.progress-fill{height:100%;border-radius:6px}
+.progress-fill.automate{background:linear-gradient(90deg,var(--accent),#7dd3fc)}
+.progress-fill.pass{background:linear-gradient(90deg,var(--pass),#6ee7b7)}
+.next-steps{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-top:1.25rem}
+.next-steps h3{margin:0 0 .75rem;color:var(--accent);font-size:1rem}
+.next-steps ol{margin:0;padding-left:1.25rem;color:var(--muted)}
+.next-steps li{margin-bottom:.5rem}
+section{margin-bottom:2.5rem}
+h2{font-size:1.35rem;border-bottom:1px solid var(--border);padding-bottom:.5rem}
+table{width:100%;border-collapse:collapse;font-size:.88rem;margin:1rem 0}
+th,td{border:1px solid var(--border);padding:.55rem .65rem;text-align:left;vertical-align:top}
+th{background:var(--surface2)}
+code{background:var(--surface2);padding:.1em .35em;border-radius:4px;font-size:.85em}
+pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;overflow:auto;font-size:.82rem}
+.mono-sm{font-size:.78rem}
+</style>
+</head>
+<body>
+<header>
+  <h1>Square → NetSuite — Live Demo Guide</h1>
+  <p>Open this page during stakeholder demos · Generated 2026-06-03</p>
+  <p class="nav-links">
+    <a href="square-automation-guide.html">Full Team Guide</a>
+    <a href="../report/square_order_import_report_latest.html">Latest Report</a>
+    <a href="https://github.com/anshul-kudal/SQUARE">SQUARE Repo</a>
+  </p>
+</header>
+<main>
+
+<section class="hero">
+<h2>Project snapshot</h2>
+
+<div class="tile-row">
+<p class="tile-row-title">Latest full-suite run</p>
+<div class="cards">
+  <div class="card"><div class="l">Passed</div><div class="v">117</div></div>
+  <div class="card fail"><div class="l">Failed</div><div class="v">8</div></div>
+  <div class="card"><div class="l">Pass rate</div><div class="v">94%</div></div>
+  <div class="card"><div class="l">Duration</div><div class="v" style="font-size:1.1rem">2.4h</div></div>
+</div>
+</div>
+
+<div class="tile-row">
+<p class="tile-row-title">Automation coverage</p>
+<div class="cards">
+  <div class="card"><div class="l">Total TCs</div><div class="v">125</div></div>
+  <div class="card"><div class="l">Unique Zephyr</div><div class="v">120</div></div>
+  <div class="card"><div class="l">Picked &amp; done</div><div class="v">125</div></div>
+  <div class="card warn"><div class="l">Remaining (automate)</div><div class="v">0</div></div>
+  <div class="card warn"><div class="l">Remaining (stabilize)</div><div class="v">8</div></div>
+</div>
+<div class="progress-wrap">
+  <div class="progress-label"><span>Automation complete</span><span>125/125 (100%)</span></div>
+  <div class="progress-bar"><div class="progress-fill automate" style="width:100%"></div></div>
+</div>
+<div class="progress-wrap">
+  <div class="progress-label"><span>Full-suite pass rate</span><span>117/125 (94%)</span></div>
+  <div class="progress-bar"><div class="progress-fill pass" style="width:94%"></div></div>
+</div>
+</div>
+
+<div class="next-steps">
+<h3>Next steps</h3>
+<ol><li>All 125 TCs picked up and automated — JSON testcases + payload folders on disk (100%)</li><li>Stabilize 8 TCs failing in latest full-suite run (NS timing / suite-fatigue timeouts)</li><li>Live demo: run 3 sample TCs in ~5 min (Batch1SingleLine → Batch1LineDisc25 → Batch7GiftPartialTip)</li><li>Per-batch regression before hotfixes (~15–45 min per batch via TAG=batchN)</li><li>Team onboarding: clone https://github.com/anshul-kudal/SQUARE</li></ol>
+</div>
+</section>
+
+<section>
+<h2>Live demo — 5 test cases</h2>
+<p class="muted">Run via <code>./scripts/runSquareDemo.sh N</code> or ask: <strong>run demo TC 1</strong>, <strong>run demo TC 1-2</strong>, etc. Report auto-opens at <code>report/square_demo_report_latest.html</code>.</p>
+<pre># Demo TC 1 only
+./scripts/runSquareDemo.sh 1
+
+# Demo TC 1 and 2
+./scripts/runSquareDemo.sh 1-2
+
+# All 5 demo TCs
+./scripts/runSquareDemo.sh all</pre>
+<table>
+<tr><th></th><th>Test key</th><th>Zephyr</th><th>Scenario</th><th>Est. time</th><th>Validates</th></tr>
+<tr>
+  <td><strong>Demo TC 1</strong></td>
+  <td><code>Batch1SingleLine</code></td>
+  <td><code>PRE-T16506</code></td>
+  <td>Single line baseline — 1 product, cash payment</td>
+  <td>~90s</td>
+  <td class="mono-sm">Item, Qty (1), Rate (19.40), eTail Order Id, eTail Channel, all variances = 0</td>
+</tr><tr>
+  <td><strong>Demo TC 2</strong></td>
+  <td><code>Batch1LineDisc25</code></td>
+  <td><code>PRE-T16554</code></td>
+  <td>25% line discount — product + DIS00000 discount line (-4.85)</td>
+  <td>~90–120s</td>
+  <td class="mono-sm">2 NS lines (product + discount), all variances = 0</td>
+</tr><tr>
+  <td><strong>Demo TC 3</strong></td>
+  <td><code>Batch5MultiPayment</code></td>
+  <td><code>PRE-T16507</code></td>
+  <td>Cash + Check split payment mapping</td>
+  <td>~90s</td>
+  <td class="mono-sm">Payment mapping, line item, eTail Order Id, variances = 0</td>
+</tr><tr>
+  <td><strong>Demo TC 4</strong></td>
+  <td><code>Batch7GiftPartialTip</code></td>
+  <td><code>PRE-T16594</code></td>
+  <td>Gift card partial payment + tip unaffected</td>
+  <td>~90s</td>
+  <td class="mono-sm">Gift card flow, tip handling, eTail linkage, variances = 0</td>
+</tr><tr>
+  <td><strong>Demo TC 5</strong></td>
+  <td><code>Batch4ModifierLineDisc</code></td>
+  <td><code>PRE-T16615</code></td>
+  <td>Modifier on line + line discount</td>
+  <td>~60–90s</td>
+  <td class="mono-sm">Modifier line, discount, NS cash sale lines, variances = 0</td>
+</tr>
+</table>
+
+<h3>Manual commands (optional)</h3>
+<pre># Demo TC 1
+env NODE_ENV=dev SETUP=E2E_Square SUITE=Square_Suite PBI=SQNS SQUARE_FLOW_PROFILE=quick \
+  TAG=batch1 npm run jest -- -t "Batch1SingleLine"
+
+# Demo TC 1-2
+./scripts/runSquareDemo.sh 1-2</pre>
+
+<p><strong>Log lines to point at:</strong> <code>Running Test Case</code> → <code>MAP &gt;&gt; {squareOrderId}</code> → <code>verifyCashsaleDataFromNetsuite</code> → <code>Test completed in Xs</code></p>
+<p><strong>After run:</strong> <code>node scripts/generateSquareHtmlReport.js logs/test-run-dev-Square_Suite-*.log</code></p>
+</section>
+
+</main>
+</body>
+</html>

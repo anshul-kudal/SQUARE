@@ -60,7 +60,10 @@ const BATCH4 = [
     zephyr: "PRE-T16615",
     title: "Modifier + line discount — zero variance",
     dataCreationMethod: "createSquareOrderModifierLineDiscount",
-    expected: { products: [{ sku: 0, rate: "19.90" }], discounts: [{ anyDiscount: true }] },
+    expected: {
+      products: [{ sku: 0, rate: "19.90" }],
+      lineDiscountAsAdjustment: true,
+    },
   },
   {
     keyPrefix: "PRET16488",

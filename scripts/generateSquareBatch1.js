@@ -26,7 +26,7 @@ const BATCH = [
     dataCreationMethod: "createSquareOrderLineDiscount25",
     expected: {
       products: [{ sku: 0, rate: "19.40" }],
-      discounts: [{ rate: "-4.85" }],
+      lineDiscountAsAdjustment: true,
       requireZeroVariance: true,
     },
     orderImportTag: false,
@@ -39,7 +39,9 @@ const BATCH = [
     dataCreationMethod: "createSquareOrderLineAndCartDiscount",
     expected: {
       products: [{ sku: 0, rate: "19.40" }],
-      discounts: [{ rate: null, anyDiscount: true }],
+      lineDiscountAsAdjustment: true,
+      lineDiscountPct: 0.1,
+      cartDiscountPct: 0.15,
       requireZeroVariance: true,
     },
     orderImportTag: false,
@@ -66,7 +68,7 @@ const BATCH = [
     dataCreationMethod: "createSquareOrderLineDiscountTip",
     expected: {
       products: [{ sku: 0, rate: "19.40" }],
-      discounts: [{ rate: "-4.85" }],
+      lineDiscountAsAdjustment: true,
       tip: true,
       requireZeroVariance: true,
     },

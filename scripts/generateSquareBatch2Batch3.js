@@ -39,10 +39,10 @@ const BATCH2 = [
     dataCreationMethod: "createSquareOrderLineDiscTwoLine",
     expected: {
       products: [
-        { sku: 0, rate: "19.40" },
-        { sku: 1, rate: "19.40" },
+        { sku: 0, rate: "19.40", lineDiscountPct: 0.25 },
+        { sku: 1, rate: "19.40", applyLineDiscount: false },
       ],
-      discounts: [{ anyDiscount: true }],
+      lineDiscountAsAdjustment: true,
     },
   },
   {
@@ -86,7 +86,10 @@ const BATCH2 = [
     zephyr: "PRE-T16604",
     title: "Line discount + tip on qty 2",
     dataCreationMethod: "createSquareOrderLineDiscMultiQty",
-    expected: { products: [{ sku: 0, rate: "19.40", qty: 2 }], discounts: [{ anyDiscount: true }] },
+    expected: {
+      products: [{ sku: 0, rate: "19.40", qty: 2 }],
+      lineDiscountAsAdjustment: true,
+    },
   },
   {
     keyPrefix: "PRET16568",
@@ -129,7 +132,12 @@ const BATCH2 = [
     zephyr: "PRE-T16606",
     title: "Line + cart discount + tip — zero variance",
     dataCreationMethod: "createSquareOrderLineCartTip",
-    expected: { products: [{ sku: 0, rate: "19.40" }], discounts: [{ anyDiscount: true }] },
+    expected: {
+      products: [{ sku: 0, rate: "19.40" }],
+      lineDiscountAsAdjustment: true,
+      lineDiscountPct: 0.25,
+      cartDiscountPct: 0.1,
+    },
   },
 ];
 
@@ -142,8 +150,8 @@ const BATCH3 = [
     dataCreationMethod: "createSquareOrderFiveOnDemand",
     settings1: { "On-demand order sync": "{{PRET16593onDemandOrderSync}}" },
     expected: { products: [{ sku: 0, rate: "19.40" }] },
-    flowMaxWait: 180,
-    flowIdleMaxWaitSec: 360,
+    flowMaxWait: 15,
+    flowIdleMaxWaitSec: 120,
   },
   {
     keyPrefix: "PRET16589",
