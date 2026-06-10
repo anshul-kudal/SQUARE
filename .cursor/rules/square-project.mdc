@@ -1,0 +1,34 @@
+---
+description: Core conventions for the SQUARE (Square POS → Integrator.io → NetSuite) test automation repo. Always apply.
+alwaysApply: true
+---
+
+# SQUARE project rules
+
+This repo is REST API test automation for **Square POS → Integrator.io → NetSuite**
+(Order Import + Return/Refund). Read `AGENTS.md` for the full map.
+
+## Always
+- Every run needs: `NODE_ENV=dev SETUP=E2E_Square PBI=SQNS SUITE=Square_Suite TAG=<filter>`.
+- Real credentials live in `env/E2E_Square.env` and `env/zephyr.env` (gitignored). Only
+  `*.env.example` is tracked. NEVER commit real tokens/IDs.
+- Validation passes only when **all variance fields = 0**. Tune `<TC>_expectedResponse1.json`,
+  never the validator (`verifyCashsaleDataFromNetsuite` / `verifyCashRefundDataFromNetsuite`).
+- NS records are validated via the NS proxy `POST /connections/{NETSUITE}/proxy`; the
+  Square saved-search patch (`config/squareNsSavedSearchPatch.js`) must apply.
+- `test_title` must include the batch tag and Zephyr key, e.g. `[Batch1][PRE-T16506]`.
+- Jest may exit 1 even on full pass (non-blocking `globalTeardown`); trust the
+  `TEST SUITE SUMMARY`, not the exit code.
+- Only commit when explicitly asked.
+
+## Where to look
+- Run/execute/batches/reports → `docs/RUNBOOK.md`
+- Add/write a TC → `docs/WRITING-TESTCASES.md`
+- Connections (NS/Square/IO) + env → `docs/CONNECTIONS.md`
+- Proxy + validation → `docs/PROXY-AND-VALIDATION.md`
+- Zephyr publish/audit → `docs/ZEPHYR.md`
+- Known issues → `docs/TROUBLESHOOTING.md`
+
+## Refunds
+Refund indexing needs the IO token to have connection export/import permission
+(else `422 not valid Refunds`). Run `node scripts/squareIoExportPreflight.js` first.

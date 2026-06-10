@@ -2,7 +2,9 @@
 
 Standalone REST API test automation for **Square → NetSuite Order Import** on Integrator.io.
 
-125 automated test cases across **9 batches + SC1**, with NetSuite cash sale validation, flow stability (409 retry, idle wait), HTML reports, and batch generators.
+125 automated test cases across **9 batches + SC1**, plus Return/Refund suites, with NetSuite cash sale validation, flow stability (409 retry, idle wait), HTML reports, batch generators, and Zephyr publishing.
+
+> **New here? Read [AGENTS.md](AGENTS.md)** — the single entry point for developers and AI agents. It links to deep docs in [docs/](docs/) (runbook, writing test cases, connections, proxy/validation, Zephyr, troubleshooting).
 
 ## Prerequisites
 
