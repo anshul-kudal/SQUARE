@@ -13,6 +13,7 @@ const SKU0 = { sku: 0 };
 const LINE_NET_25 = netRate("19.40", 0.25);
 const LINE_CART_NET = compoundNetRate("19.40", 0.1, 0.15);
 const CART_15_NET = netRate("19.40", 0.15);
+const LINE_10_NET = netRate("19.40", 0.10);
 const ORDER_DISC_NET = "14.55";
 const DISC_485 = "-4.85";
 
@@ -196,7 +197,7 @@ const BATCH = [
     title: "Full refund — line 10% + cart 15% discount",
     orderScenario: "RETURN_LINE_CART_DISC",
     refundKind: REFUND_KINDS.FULL,
-    expectedOrder: { products: [{ ...SKU0, rate: LINE_CART_NET, qty: 1 }] },
+    expectedOrder: { products: [{ ...SKU0, rate: LINE_10_NET, qty: 1 }], discounts: [{ rate: "-2.62" }] },
     expectedRefund: { totalAmount: `-${LINE_CART_NET}`, refundLines: [refundLine(`-${LINE_CART_NET}`)] },
   },
   {
@@ -206,7 +207,7 @@ const BATCH = [
     title: "Partial refund — 50% on line+cart discount order",
     orderScenario: "RETURN_LINE_CART_DISC",
     refundKind: REFUND_KINDS.HALF_AMOUNT,
-    expectedOrder: { products: [{ ...SKU0, rate: LINE_CART_NET, qty: 1 }] },
+    expectedOrder: { products: [{ ...SKU0, rate: LINE_10_NET, qty: 1 }], discounts: [{ rate: "-2.62" }] },
     expectedRefund: { totalAmount: "-7.42", refundLines: [refundLine("-7.42")] },
   },
   {
@@ -216,7 +217,9 @@ const BATCH = [
     title: "Full refund — cart 15% discount only",
     orderScenario: "RETURN_CART_DISC_15",
     refundKind: REFUND_KINDS.FULL,
-    expectedOrder: { products: [{ ...SKU0, rate: CART_15_NET, qty: 1 }] },
+    // Cart/order discount is NOT netted into the line rate by NS — the rate stays at the
+    // line value (19.40) and the cart discount is a separate DIS00000 line.
+    expectedOrder: { products: [{ ...SKU0, rate: "19.40", qty: 1 }], discounts: [{ rate: "-2.91" }] },
     expectedRefund: { totalAmount: `-${CART_15_NET}`, refundLines: [refundLine(`-${CART_15_NET}`)] },
   },
   {
