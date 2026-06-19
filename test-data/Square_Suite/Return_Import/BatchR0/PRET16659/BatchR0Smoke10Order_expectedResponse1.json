@@ -3,7 +3,7 @@
     {
       "Item": "process.env[DEFAULTS.PRODUCTS.0.SKU]",
       "Quantity": "1",
-      "Item Rate": "19.40"
+      "Item Rate": "19.90"
     }
   ],
   "items": [],

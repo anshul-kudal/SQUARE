@@ -66,44 +66,8 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 30000,
+                "delayMs": 10000,
                 "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "waitForSquareOrderFlowIdle",
-                "orderKeyPrefix": "PRET16650",
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "runSquareOrderFlowWithRetry",
-                "orderKeyPrefix": "PRET16650",
-                "flowRunMaxRetries": 6,
-                "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "GET",
-                "path": "/flows/{{PRET16650flowId1}}/jobs/latest",
-                "waitUntil": "completed",
-                "maxWait": 10
-              },
-              "response": {
-                "status": 200,
-                "partialValidation": true,
-                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16650/BatchR0Smoke01Order_flow_response1.json",
-                "dontStopExecutionOnFailure": true
               }
             },
             {
@@ -120,8 +84,44 @@
               "request": {
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareOrderFlowWithRetry",
+                "orderKeyPrefix": "PRET16650",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16650flowId1}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16650/BatchR0Smoke01Order_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16650",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 8000,
+                "delayMs": 5000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -186,44 +186,8 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 30000,
+                "delayMs": 10000,
                 "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "waitForSquareRefundFlowIdle",
-                "orderKeyPrefix": "PRET16650",
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "runSquareRefundFlowWithRetry",
-                "orderKeyPrefix": "PRET16650",
-                "flowRunMaxRetries": 6,
-                "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "GET",
-                "path": "/flows/{{PRET16650flowId2}}/jobs/latest",
-                "waitUntil": "completed",
-                "maxWait": 10
-              },
-              "response": {
-                "status": 200,
-                "partialValidation": true,
-                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16650/BatchR0Smoke01Refund_flow_response1.json",
-                "dontStopExecutionOnFailure": true
               }
             },
             {
@@ -240,8 +204,44 @@
               "request": {
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareRefundFlowWithRetry",
+                "orderKeyPrefix": "PRET16650",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16650flowId2}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16650/BatchR0Smoke01Refund_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareRefundFlowIdle",
+                "orderKeyPrefix": "PRET16650",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 8000,
+                "delayMs": 5000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -319,44 +319,8 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 30000,
+                "delayMs": 10000,
                 "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "waitForSquareOrderFlowIdle",
-                "orderKeyPrefix": "PRET16651",
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "runSquareOrderFlowWithRetry",
-                "orderKeyPrefix": "PRET16651",
-                "flowRunMaxRetries": 6,
-                "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "GET",
-                "path": "/flows/{{PRET16651flowId1}}/jobs/latest",
-                "waitUntil": "completed",
-                "maxWait": 10
-              },
-              "response": {
-                "status": 200,
-                "partialValidation": true,
-                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16651/BatchR0Smoke02Order_flow_response1.json",
-                "dontStopExecutionOnFailure": true
               }
             },
             {
@@ -373,8 +337,44 @@
               "request": {
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareOrderFlowWithRetry",
+                "orderKeyPrefix": "PRET16651",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16651flowId1}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16651/BatchR0Smoke02Order_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16651",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 8000,
+                "delayMs": 5000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -439,44 +439,8 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 30000,
+                "delayMs": 10000,
                 "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "waitForSquareRefundFlowIdle",
-                "orderKeyPrefix": "PRET16651",
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "runSquareRefundFlowWithRetry",
-                "orderKeyPrefix": "PRET16651",
-                "flowRunMaxRetries": 6,
-                "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "GET",
-                "path": "/flows/{{PRET16651flowId2}}/jobs/latest",
-                "waitUntil": "completed",
-                "maxWait": 10
-              },
-              "response": {
-                "status": 200,
-                "partialValidation": true,
-                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16651/BatchR0Smoke02Refund_flow_response1.json",
-                "dontStopExecutionOnFailure": true
               }
             },
             {
@@ -493,8 +457,44 @@
               "request": {
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareRefundFlowWithRetry",
+                "orderKeyPrefix": "PRET16651",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16651flowId2}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16651/BatchR0Smoke02Refund_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareRefundFlowIdle",
+                "orderKeyPrefix": "PRET16651",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 8000,
+                "delayMs": 5000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -572,44 +572,8 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 30000,
+                "delayMs": 10000,
                 "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "waitForSquareOrderFlowIdle",
-                "orderKeyPrefix": "PRET16652",
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "runSquareOrderFlowWithRetry",
-                "orderKeyPrefix": "PRET16652",
-                "flowRunMaxRetries": 6,
-                "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "GET",
-                "path": "/flows/{{PRET16652flowId1}}/jobs/latest",
-                "waitUntil": "completed",
-                "maxWait": 10
-              },
-              "response": {
-                "status": 200,
-                "partialValidation": true,
-                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16652/BatchR0Smoke03Order_flow_response1.json",
-                "dontStopExecutionOnFailure": true
               }
             },
             {
@@ -626,8 +590,44 @@
               "request": {
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareOrderFlowWithRetry",
+                "orderKeyPrefix": "PRET16652",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16652flowId1}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16652/BatchR0Smoke03Order_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16652",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 8000,
+                "delayMs": 5000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -692,44 +692,8 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 30000,
+                "delayMs": 10000,
                 "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "waitForSquareRefundFlowIdle",
-                "orderKeyPrefix": "PRET16652",
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "runSquareRefundFlowWithRetry",
-                "orderKeyPrefix": "PRET16652",
-                "flowRunMaxRetries": 6,
-                "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "GET",
-                "path": "/flows/{{PRET16652flowId2}}/jobs/latest",
-                "waitUntil": "completed",
-                "maxWait": 10
-              },
-              "response": {
-                "status": 200,
-                "partialValidation": true,
-                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16652/BatchR0Smoke03Refund_flow_response1.json",
-                "dontStopExecutionOnFailure": true
               }
             },
             {
@@ -746,8 +710,44 @@
               "request": {
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareRefundFlowWithRetry",
+                "orderKeyPrefix": "PRET16652",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16652flowId2}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16652/BatchR0Smoke03Refund_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareRefundFlowIdle",
+                "orderKeyPrefix": "PRET16652",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 8000,
+                "delayMs": 5000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -825,44 +825,8 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 30000,
+                "delayMs": 10000,
                 "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "waitForSquareOrderFlowIdle",
-                "orderKeyPrefix": "PRET16653",
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "runSquareOrderFlowWithRetry",
-                "orderKeyPrefix": "PRET16653",
-                "flowRunMaxRetries": 6,
-                "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "GET",
-                "path": "/flows/{{PRET16653flowId1}}/jobs/latest",
-                "waitUntil": "completed",
-                "maxWait": 10
-              },
-              "response": {
-                "status": 200,
-                "partialValidation": true,
-                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16653/BatchR0Smoke04Order_flow_response1.json",
-                "dontStopExecutionOnFailure": true
               }
             },
             {
@@ -879,8 +843,44 @@
               "request": {
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareOrderFlowWithRetry",
+                "orderKeyPrefix": "PRET16653",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16653flowId1}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16653/BatchR0Smoke04Order_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16653",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 8000,
+                "delayMs": 5000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -945,44 +945,8 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 30000,
+                "delayMs": 10000,
                 "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "waitForSquareRefundFlowIdle",
-                "orderKeyPrefix": "PRET16653",
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "runSquareRefundFlowWithRetry",
-                "orderKeyPrefix": "PRET16653",
-                "flowRunMaxRetries": 6,
-                "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "GET",
-                "path": "/flows/{{PRET16653flowId2}}/jobs/latest",
-                "waitUntil": "completed",
-                "maxWait": 10
-              },
-              "response": {
-                "status": 200,
-                "partialValidation": true,
-                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16653/BatchR0Smoke04Refund_flow_response1.json",
-                "dontStopExecutionOnFailure": true
               }
             },
             {
@@ -999,8 +963,44 @@
               "request": {
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareRefundFlowWithRetry",
+                "orderKeyPrefix": "PRET16653",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16653flowId2}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16653/BatchR0Smoke04Refund_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareRefundFlowIdle",
+                "orderKeyPrefix": "PRET16653",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 8000,
+                "delayMs": 5000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -1078,44 +1078,8 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 30000,
+                "delayMs": 10000,
                 "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "waitForSquareOrderFlowIdle",
-                "orderKeyPrefix": "PRET16654",
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "runSquareOrderFlowWithRetry",
-                "orderKeyPrefix": "PRET16654",
-                "flowRunMaxRetries": 6,
-                "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "GET",
-                "path": "/flows/{{PRET16654flowId1}}/jobs/latest",
-                "waitUntil": "completed",
-                "maxWait": 10
-              },
-              "response": {
-                "status": 200,
-                "partialValidation": true,
-                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16654/BatchR0Smoke05Order_flow_response1.json",
-                "dontStopExecutionOnFailure": true
               }
             },
             {
@@ -1132,8 +1096,44 @@
               "request": {
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareOrderFlowWithRetry",
+                "orderKeyPrefix": "PRET16654",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16654flowId1}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16654/BatchR0Smoke05Order_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16654",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 8000,
+                "delayMs": 5000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -1198,44 +1198,8 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 30000,
+                "delayMs": 10000,
                 "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "waitForSquareRefundFlowIdle",
-                "orderKeyPrefix": "PRET16654",
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "runSquareRefundFlowWithRetry",
-                "orderKeyPrefix": "PRET16654",
-                "flowRunMaxRetries": 6,
-                "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "GET",
-                "path": "/flows/{{PRET16654flowId2}}/jobs/latest",
-                "waitUntil": "completed",
-                "maxWait": 10
-              },
-              "response": {
-                "status": 200,
-                "partialValidation": true,
-                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16654/BatchR0Smoke05Refund_flow_response1.json",
-                "dontStopExecutionOnFailure": true
               }
             },
             {
@@ -1252,8 +1216,44 @@
               "request": {
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareRefundFlowWithRetry",
+                "orderKeyPrefix": "PRET16654",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16654flowId2}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16654/BatchR0Smoke05Refund_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareRefundFlowIdle",
+                "orderKeyPrefix": "PRET16654",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 8000,
+                "delayMs": 5000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -1331,44 +1331,8 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 30000,
+                "delayMs": 10000,
                 "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "waitForSquareOrderFlowIdle",
-                "orderKeyPrefix": "PRET16655",
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "runSquareOrderFlowWithRetry",
-                "orderKeyPrefix": "PRET16655",
-                "flowRunMaxRetries": 6,
-                "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "GET",
-                "path": "/flows/{{PRET16655flowId1}}/jobs/latest",
-                "waitUntil": "completed",
-                "maxWait": 10
-              },
-              "response": {
-                "status": 200,
-                "partialValidation": true,
-                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16655/BatchR0Smoke06Order_flow_response1.json",
-                "dontStopExecutionOnFailure": true
               }
             },
             {
@@ -1385,8 +1349,44 @@
               "request": {
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareOrderFlowWithRetry",
+                "orderKeyPrefix": "PRET16655",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16655flowId1}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16655/BatchR0Smoke06Order_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16655",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 8000,
+                "delayMs": 5000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -1451,44 +1451,8 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 30000,
+                "delayMs": 10000,
                 "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "waitForSquareRefundFlowIdle",
-                "orderKeyPrefix": "PRET16655",
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "runSquareRefundFlowWithRetry",
-                "orderKeyPrefix": "PRET16655",
-                "flowRunMaxRetries": 6,
-                "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "GET",
-                "path": "/flows/{{PRET16655flowId2}}/jobs/latest",
-                "waitUntil": "completed",
-                "maxWait": 10
-              },
-              "response": {
-                "status": 200,
-                "partialValidation": true,
-                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16655/BatchR0Smoke06Refund_flow_response1.json",
-                "dontStopExecutionOnFailure": true
               }
             },
             {
@@ -1505,8 +1469,44 @@
               "request": {
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareRefundFlowWithRetry",
+                "orderKeyPrefix": "PRET16655",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16655flowId2}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16655/BatchR0Smoke06Refund_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareRefundFlowIdle",
+                "orderKeyPrefix": "PRET16655",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 8000,
+                "delayMs": 5000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -1584,44 +1584,8 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 30000,
+                "delayMs": 10000,
                 "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "waitForSquareOrderFlowIdle",
-                "orderKeyPrefix": "PRET16656",
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "runSquareOrderFlowWithRetry",
-                "orderKeyPrefix": "PRET16656",
-                "flowRunMaxRetries": 6,
-                "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "GET",
-                "path": "/flows/{{PRET16656flowId1}}/jobs/latest",
-                "waitUntil": "completed",
-                "maxWait": 10
-              },
-              "response": {
-                "status": 200,
-                "partialValidation": true,
-                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16656/BatchR0Smoke07Order_flow_response1.json",
-                "dontStopExecutionOnFailure": true
               }
             },
             {
@@ -1638,8 +1602,44 @@
               "request": {
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareOrderFlowWithRetry",
+                "orderKeyPrefix": "PRET16656",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16656flowId1}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16656/BatchR0Smoke07Order_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16656",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 8000,
+                "delayMs": 5000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -1704,44 +1704,8 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 30000,
+                "delayMs": 10000,
                 "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "waitForSquareRefundFlowIdle",
-                "orderKeyPrefix": "PRET16656",
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "runSquareRefundFlowWithRetry",
-                "orderKeyPrefix": "PRET16656",
-                "flowRunMaxRetries": 6,
-                "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "GET",
-                "path": "/flows/{{PRET16656flowId2}}/jobs/latest",
-                "waitUntil": "completed",
-                "maxWait": 10
-              },
-              "response": {
-                "status": 200,
-                "partialValidation": true,
-                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16656/BatchR0Smoke07Refund_flow_response1.json",
-                "dontStopExecutionOnFailure": true
               }
             },
             {
@@ -1758,8 +1722,44 @@
               "request": {
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareRefundFlowWithRetry",
+                "orderKeyPrefix": "PRET16656",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16656flowId2}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16656/BatchR0Smoke07Refund_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareRefundFlowIdle",
+                "orderKeyPrefix": "PRET16656",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 8000,
+                "delayMs": 5000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -1837,44 +1837,8 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 30000,
+                "delayMs": 10000,
                 "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "waitForSquareOrderFlowIdle",
-                "orderKeyPrefix": "PRET16657",
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "runSquareOrderFlowWithRetry",
-                "orderKeyPrefix": "PRET16657",
-                "flowRunMaxRetries": 6,
-                "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "GET",
-                "path": "/flows/{{PRET16657flowId1}}/jobs/latest",
-                "waitUntil": "completed",
-                "maxWait": 10
-              },
-              "response": {
-                "status": 200,
-                "partialValidation": true,
-                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16657/BatchR0Smoke08Order_flow_response1.json",
-                "dontStopExecutionOnFailure": true
               }
             },
             {
@@ -1891,8 +1855,44 @@
               "request": {
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareOrderFlowWithRetry",
+                "orderKeyPrefix": "PRET16657",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16657flowId1}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16657/BatchR0Smoke08Order_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16657",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 8000,
+                "delayMs": 5000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -1957,44 +1957,8 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 30000,
+                "delayMs": 10000,
                 "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "waitForSquareRefundFlowIdle",
-                "orderKeyPrefix": "PRET16657",
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "runSquareRefundFlowWithRetry",
-                "orderKeyPrefix": "PRET16657",
-                "flowRunMaxRetries": 6,
-                "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "GET",
-                "path": "/flows/{{PRET16657flowId2}}/jobs/latest",
-                "waitUntil": "completed",
-                "maxWait": 10
-              },
-              "response": {
-                "status": 200,
-                "partialValidation": true,
-                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16657/BatchR0Smoke08Refund_flow_response1.json",
-                "dontStopExecutionOnFailure": true
               }
             },
             {
@@ -2011,8 +1975,44 @@
               "request": {
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareRefundFlowWithRetry",
+                "orderKeyPrefix": "PRET16657",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16657flowId2}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16657/BatchR0Smoke08Refund_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareRefundFlowIdle",
+                "orderKeyPrefix": "PRET16657",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 8000,
+                "delayMs": 5000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -2090,44 +2090,8 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 30000,
+                "delayMs": 10000,
                 "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "waitForSquareOrderFlowIdle",
-                "orderKeyPrefix": "PRET16658",
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "runSquareOrderFlowWithRetry",
-                "orderKeyPrefix": "PRET16658",
-                "flowRunMaxRetries": 6,
-                "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "GET",
-                "path": "/flows/{{PRET16658flowId1}}/jobs/latest",
-                "waitUntil": "completed",
-                "maxWait": 10
-              },
-              "response": {
-                "status": 200,
-                "partialValidation": true,
-                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16658/BatchR0Smoke09Order_flow_response1.json",
-                "dontStopExecutionOnFailure": true
               }
             },
             {
@@ -2144,8 +2108,44 @@
               "request": {
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareOrderFlowWithRetry",
+                "orderKeyPrefix": "PRET16658",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16658flowId1}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16658/BatchR0Smoke09Order_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16658",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 8000,
+                "delayMs": 5000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -2210,44 +2210,8 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 30000,
+                "delayMs": 10000,
                 "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "waitForSquareRefundFlowIdle",
-                "orderKeyPrefix": "PRET16658",
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "runSquareRefundFlowWithRetry",
-                "orderKeyPrefix": "PRET16658",
-                "flowRunMaxRetries": 6,
-                "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "GET",
-                "path": "/flows/{{PRET16658flowId2}}/jobs/latest",
-                "waitUntil": "completed",
-                "maxWait": 10
-              },
-              "response": {
-                "status": 200,
-                "partialValidation": true,
-                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16658/BatchR0Smoke09Refund_flow_response1.json",
-                "dontStopExecutionOnFailure": true
               }
             },
             {
@@ -2264,8 +2228,44 @@
               "request": {
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareRefundFlowWithRetry",
+                "orderKeyPrefix": "PRET16658",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16658flowId2}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16658/BatchR0Smoke09Refund_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareRefundFlowIdle",
+                "orderKeyPrefix": "PRET16658",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 8000,
+                "delayMs": 5000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -2343,44 +2343,8 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 30000,
+                "delayMs": 10000,
                 "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "waitForSquareOrderFlowIdle",
-                "orderKeyPrefix": "PRET16659",
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "runSquareOrderFlowWithRetry",
-                "orderKeyPrefix": "PRET16659",
-                "flowRunMaxRetries": 6,
-                "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "GET",
-                "path": "/flows/{{PRET16659flowId1}}/jobs/latest",
-                "waitUntil": "completed",
-                "maxWait": 10
-              },
-              "response": {
-                "status": 200,
-                "partialValidation": true,
-                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16659/BatchR0Smoke10Order_flow_response1.json",
-                "dontStopExecutionOnFailure": true
               }
             },
             {
@@ -2397,8 +2361,44 @@
               "request": {
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareOrderFlowWithRetry",
+                "orderKeyPrefix": "PRET16659",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16659flowId1}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16659/BatchR0Smoke10Order_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareOrderFlowIdle",
+                "orderKeyPrefix": "PRET16659",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 8000,
+                "delayMs": 5000,
                 "skipThePreRequestValidation": true
               }
             }
@@ -2463,44 +2463,8 @@
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 30000,
+                "delayMs": 10000,
                 "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "waitForSquareRefundFlowIdle",
-                "orderKeyPrefix": "PRET16659",
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "POST",
-                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
-                "dataCreationMethod": "runSquareRefundFlowWithRetry",
-                "orderKeyPrefix": "PRET16659",
-                "flowRunMaxRetries": 6,
-                "flowRunRetryDelayMs": 10000,
-                "flowIdleMaxWaitSec": 600,
-                "skipThePreRequestValidation": true
-              }
-            },
-            {
-              "request": {
-                "method": "GET",
-                "path": "/flows/{{PRET16659flowId2}}/jobs/latest",
-                "waitUntil": "completed",
-                "maxWait": 10
-              },
-              "response": {
-                "status": 200,
-                "partialValidation": true,
-                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16659/BatchR0Smoke10Refund_flow_response1.json",
-                "dontStopExecutionOnFailure": true
               }
             },
             {
@@ -2517,8 +2481,44 @@
               "request": {
                 "method": "POST",
                 "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "runSquareRefundFlowWithRetry",
+                "orderKeyPrefix": "PRET16659",
+                "flowRunMaxRetries": 6,
+                "flowRunRetryDelayMs": 10000,
+                "flowIdleMaxWaitSec": 120,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "GET",
+                "path": "/flows/{{PRET16659flowId2}}/jobs/latest",
+                "waitUntil": "completed",
+                "maxWait": 8
+              },
+              "response": {
+                "status": 200,
+                "partialValidation": true,
+                "body": "/test-data/Square_Suite/Return_Import/BatchR0/PRET16659/BatchR0Smoke10Refund_flow_response1.json",
+                "dontStopExecutionOnFailure": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
+                "dataCreationMethod": "waitForSquareRefundFlowIdle",
+                "orderKeyPrefix": "PRET16659",
+                "flowIdleMaxWaitSec": 30,
+                "skipThePreRequestValidation": true
+              }
+            },
+            {
+              "request": {
+                "method": "POST",
+                "path": "/connections/process.env[CONNECTIONS.SQUARE]/export",
                 "dataCreationMethod": "squareStaticDelay",
-                "delayMs": 8000,
+                "delayMs": 5000,
                 "skipThePreRequestValidation": true
               }
             }

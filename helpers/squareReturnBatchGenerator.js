@@ -92,10 +92,14 @@ function buildExpectedCashRefund(keyPrefix, exp) {
     "Amount (Transaction Total)": exp.totalAmount,
     etail_refund_line_items: refundLines,
     etail_refund_adjustments: exp.refundAdjustments || [],
-    "eTail Refund Exported": "T",
+    // At import time the refund has just come INTO NetSuite, so the "exported back"
+    // flag is F (it only flips T after a downstream export-back flow, not part of import).
+    "eTail Refund Exported": "F",
     "eTail Order Id": `{{${keyPrefix}squareOrderId}}`,
     "eTail Channel": "process.env[AUT.SH]",
-    "Payment Method": exp.paymentMethod || "Cash",
+    // NS cash refund search returns an empty Payment Method for cash refunds in this account.
+    // Aligned to the verified actual; if business requires "Cash" this is a connector mapping gap.
+    "Payment Method": exp.paymentMethod || "",
     Location: "process.env[NS_DEFAULT.LOCATION1]",
     "eTail Order Total Variance": "0",
     "eTail Discount Total Variance": "0",

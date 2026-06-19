@@ -854,6 +854,15 @@ function exportPermissionError() {
 
 async function ensureOnDemandRefundSync(data, map) {
   const prefix = resolveOrderKeyPrefix(data, "REFUND_ENSURE");
+  // Scheduled-pull mode: skip the on-demand pre-index gate and let the refund flow's
+  // "Get Refunds from Square" (HTTPExport) page generator pull the refund when the flow
+  // runs — same model as order import. Gated by env flag so default behavior is unchanged.
+  if (process.env.SQUARE_REFUND_SKIP_INDEX === "true") {
+    Logger.warn(
+      "[Square] SQUARE_REFUND_SKIP_INDEX=true — skipping on-demand refund index; refund flow's scheduled HTTPExport will pull the refund on run"
+    );
+    return { status: 200, body: { skippedIndex: true } };
+  }
   const candidates = buildRefundSyncCandidates(map, prefix);
   const maxWaitMs = data?.request?.refundIndexMaxWaitMs ?? 180000;
   const pollMs = data?.request?.refundIndexPollMs ?? 10000;

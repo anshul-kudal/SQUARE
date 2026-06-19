@@ -114,7 +114,10 @@ const SMOKE = [
     refundKind: REFUND_KINDS.FULL,
     expectedOrder: { products: [{ ...SKU0, rate: "19.40", qty: 1 }] },
     expectedRefund: {
-      totalAmount: "-21.40",
+      // NS cash-refund "Amount (Transaction Total)" reflects the refunded line items (19.40),
+      // not the tip. Tip refund (2.00) is asserted separately as an adjustment line below —
+      // if NS does not record it, this TC will fail and surface a real tip-handling gap.
+      totalAmount: "-19.40",
       refundLines: [{ ...SKU0, amount: "-19.40", qty: "-1" }],
       refundAdjustments: [{ item: "Tip", amount: "-2.00" }],
     },
@@ -158,10 +161,11 @@ const SMOKE = [
     title: "Full refund — single line with modifier",
     orderScenario: "RETURN_MODIFIER",
     refundKind: REFUND_KINDS.FULL,
-    expectedOrder: { products: [{ ...SKU0, rate: "19.40", qty: 1 }] },
+    // Modifier adds 0.50 to the line, so the NS line rate/refund total is 19.90, not 19.40.
+    expectedOrder: { products: [{ ...SKU0, rate: "19.90", qty: 1 }] },
     expectedRefund: {
-      totalAmount: "-19.40",
-      refundLines: [{ ...SKU0, amount: "-19.40", qty: "-1" }],
+      totalAmount: "-19.90",
+      refundLines: [{ ...SKU0, amount: "-19.90", qty: "-1" }],
     },
   },
 ];
