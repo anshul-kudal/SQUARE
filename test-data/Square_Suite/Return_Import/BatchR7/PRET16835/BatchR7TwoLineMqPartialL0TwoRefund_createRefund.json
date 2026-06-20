@@ -1,0 +1,7 @@
+{
+  "orderKeyPrefix": "PRET16835",
+  "refundKind": "partial_qty",
+  "refundSettleMs": 35000,
+  "refundQty": 2,
+  "lineIndex": 0
+}
