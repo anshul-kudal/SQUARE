@@ -1,0 +1,36 @@
+{
+  "cashSale_line_items": [
+    {
+      "Item": "process.env[DEFAULTS.PRODUCTS.0.SKU]",
+      "Quantity": "1",
+      "Item Rate": "19.40"
+    },
+    {
+      "Item": "process.env[DEFAULTS.PRODUCTS.1.SKU]",
+      "Quantity": "1",
+      "Item Rate": "19.40"
+    }
+  ],
+  "items": [],
+  "fulfilLines": [],
+  "fulfilTracking": [],
+  "cancelorderLine": [],
+  "assignedInventoryDetail": [],
+  "CustomerDepositDetails": [],
+  "inventoryDetails": [],
+  "salesOrder_discount_codes": [],
+  "salesOrder_LineLevel_discount": [],
+  "etail_line_items": [],
+  "etail_tax_line_items": [],
+  "etail_refund_line_items": [],
+  "etail_refund_adjustments": [],
+  "eTail Order Total Variance": "0",
+  "eTail Discount Total Variance": "0",
+  "eTail Tax Total Variance": "0",
+  "eTail Ship Total Variance": "0",
+  "eTail Order Id": "{{PRET16790squareOrderId}}",
+  "eTail Channel": "process.env[AUT.SH]",
+  "eTail Refund Exported": null,
+  "eTail Cancelled Order Exported": null,
+  "Currency": "process.env[CURRENCY.NETSUITE]"
+}

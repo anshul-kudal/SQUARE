@@ -1,0 +1,6 @@
+{
+  "orderKeyPrefix": "PRET16803",
+  "refundKind": "partial_amount",
+  "refundSettleMs": 35000,
+  "refundAmountCents": 2500
+}
