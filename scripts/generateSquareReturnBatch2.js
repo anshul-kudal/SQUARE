@@ -253,7 +253,8 @@ const BATCH = [
         { ...SKU1, rate: RATE, qty: 2 },
       ],
     },
-    expectedRefund: { totalAmount: "-19.40", refundLines: [rl(1, "-19.40")] },
+    // PARTIAL_LINE_INDEX refunds the WHOLE line 2 (qty 2 = 38.80), not a single unit.
+    expectedRefund: { totalAmount: "-38.80", refundLines: [rl(1, "-38.80", "-2")] },
   },
   {
     keyPrefix: "PRET16737",
@@ -305,7 +306,8 @@ const BATCH = [
       ],
     },
     expectedRefund: {
-      totalAmount: "-42.80",
+      // Tip is recorded as a separate adjustment, NOT in the NS transaction total.
+      totalAmount: "-38.80",
       refundLines: [rl(0, "-19.40"), rl(1, "-19.40")],
       refundAdjustments: [{ item: "Tip", amount: "-4.00" }],
     },
@@ -323,7 +325,7 @@ const BATCH = [
         { ...SKU1, rate: RATE, qty: 1 },
       ],
     },
-    expectedRefund: { totalAmount: "-21.40", refundLines: [rl(0, "-19.40")] },
+    expectedRefund: { totalAmount: "-19.40", refundLines: [rl(0, "-19.40")] },
   },
   {
     keyPrefix: "PRET16741",
@@ -334,7 +336,8 @@ const BATCH = [
     refundKind: REFUND_KINDS.FULL,
     expectedOrder: { products: [{ ...SKU0, rate: LINE25PCT, qty: 2 }] },
     expectedRefund: {
-      totalAmount: "-31.10",
+      // Tip recorded as adjustment, not in the transaction total (2 × 14.55 net = 29.10).
+      totalAmount: "-29.10",
       refundLines: [rl(0, `-${LINE25PCT}`, "-2")],
       refundAdjustments: [{ item: "Tip", amount: "-2.00" }],
     },
@@ -356,15 +359,16 @@ const BATCH = [
     title: "Full refund — two lines one with modifier",
     orderScenario: "RETURN_TWO_LINE_ONE_MODIFIER",
     refundKind: REFUND_KINDS.FULL,
+    // Modifier is on line 0 (+0.50 → 19.90); NS line rate is 19.90, not 19.40.
     expectedOrder: {
       products: [
-        { ...SKU0, rate: RATE, qty: 1 },
+        { ...SKU0, rate: "19.90", qty: 1 },
         { ...SKU1, rate: RATE, qty: 1 },
       ],
     },
     expectedRefund: {
-      totalAmount: "-38.80",
-      refundLines: [rl(0, "-19.40"), rl(1, "-19.40")],
+      totalAmount: "-39.30",
+      refundLines: [rl(0, "-19.90"), rl(1, "-19.40")],
     },
   },
   {
@@ -375,13 +379,14 @@ const BATCH = [
     orderScenario: "RETURN_TWO_LINE_ONE_MODIFIER",
     refundKind: REFUND_KINDS.PARTIAL_LINE_INDEX,
     lineIndex: 0,
+    // Modifier on line 0 → that line's rate/refund is 19.90.
     expectedOrder: {
       products: [
-        { ...SKU0, rate: RATE, qty: 1 },
+        { ...SKU0, rate: "19.90", qty: 1 },
         { ...SKU1, rate: RATE, qty: 1 },
       ],
     },
-    expectedRefund: { totalAmount: "-19.40", refundLines: [rl(0, "-19.40")] },
+    expectedRefund: { totalAmount: "-19.90", refundLines: [rl(0, "-19.90")] },
   },
   {
     keyPrefix: "PRET16745",

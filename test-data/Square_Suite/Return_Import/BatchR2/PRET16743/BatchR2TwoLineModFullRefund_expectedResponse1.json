@@ -1,10 +1,10 @@
 {
-  "Amount (Transaction Total)": "-38.80",
+  "Amount (Transaction Total)": "-39.30",
   "etail_refund_line_items": [
     {
       "Item": "process.env[DEFAULTS.PRODUCTS.0.SKU]",
       "Quantity": "-1",
-      "Amount (Foreign Currency)": "-19.40"
+      "Amount (Foreign Currency)": "-19.90"
     },
     {
       "Item": "process.env[DEFAULTS.PRODUCTS.1.SKU]",

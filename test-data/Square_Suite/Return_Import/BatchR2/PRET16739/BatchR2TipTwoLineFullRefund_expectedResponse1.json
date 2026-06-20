@@ -1,5 +1,5 @@
 {
-  "Amount (Transaction Total)": "-42.80",
+  "Amount (Transaction Total)": "-38.80",
   "etail_refund_line_items": [
     {
       "Item": "process.env[DEFAULTS.PRODUCTS.0.SKU]",
