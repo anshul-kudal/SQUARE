@@ -9,7 +9,7 @@ Standalone REST API test automation for **Square POS → Integrator.io (IO) → 
 
 - **Order Import**: Square order + cash payment → IO flow → NS **Cash Sale**, validated via NS proxy.
 - **Return / Refund Import**: Square refund → IO flow → NS **Cash Refund**, validated via NS proxy.
-- 125 Order TCs (Batches 1–9 + SC1) + Return suites (R0 smoke, R1, R2).
+- **~330 automated TCs**: 125 Order (Batches 1–9 + SC1) + 205 Return/Refund (Batches R0–R11). Order = 117 green / 8 to stabilize; Refund = all green per-batch (consolidated stabilization pending).
 - Results can be published to **Zephyr Scale** (test cycle + executions + proof).
 
 **Stack**: Node 22.11.0, Jest (ts-jest), `@celigo/rest-api-ia-automation`. Product identifier **`PBI=SQNS`**, setup **`SETUP=E2E_Square`**, suite **`SUITE=Square_Suite`**.

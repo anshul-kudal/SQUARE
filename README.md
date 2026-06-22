@@ -1,8 +1,18 @@
-# SQUARE — Square Order Import Test Automation
+# SQUARE — Square → NetSuite IA Test Automation
 
-Standalone REST API test automation for **Square → NetSuite Order Import** on Integrator.io.
+Standalone REST API test automation for the **Square → NetSuite Integration App** on Integrator.io, covering both **Order Import** (→ NetSuite Cash Sale) and **Return / Refund Import** (→ NetSuite Cash Refund).
 
-125 automated test cases across **9 batches + SC1**, plus Return/Refund suites, with NetSuite cash sale validation, flow stability (409 retry, idle wait), HTML reports, batch generators, and Zephyr publishing.
+**~330 automated end-to-end test cases**, with NetSuite validation, flow stability (409 retry, idle wait), HTML reports, batch generators, and Zephyr publishing.
+
+## Coverage at a glance
+
+| Track | Automated | Status |
+|-------|----------:|--------|
+| **Order Import** (Batches 1–9 + SC1) | **125** | 117 green · 8 to stabilize |
+| **Return / Refund** (Batches R0–R11) | **205** | All green per-batch · consolidated stabilization pending |
+| **Total** | **~330** | — |
+
+> Of the **429 test cases in Zephyr** (157 Order, Customer & Tender · 120 Refund Import · 152 General/UI), the Order + Refund data-path scope is automated. The 152 **General** TCs are UI/install/settings — manual by design. Refund batches are built as permutations (205) that map onto the 120 Zephyr refund cases (key mapping pending).
 
 > **New here? Read [AGENTS.md](AGENTS.md)** — the single entry point for developers and AI agents. It links to deep docs in [docs/](docs/) (runbook, writing test cases, connections, proxy/validation, Zephyr, troubleshooting).
 
@@ -52,7 +62,7 @@ Example:
 env NODE_ENV=dev SETUP=E2E_Square PBI=SQNS SUITE=Square_Suite TAG=batch5 npm run jest
 ```
 
-### Full suite (125 TCs)
+### Full Order suite (125 TCs)
 
 ```bash
 npm run square:full
@@ -72,7 +82,7 @@ node scripts/generateSquareTeamDocs.js      # Regenerate docs/square-automation-
 
 ```
 SQUARE/
-├── testcases/Square_Suite/     # Batch JSON (125 TCs)
+├── testcases/Square_Suite/     # Batch JSON — Order_Import (125) + Return_Import (R0–R11, 205)
 ├── test-data/Square_Suite/     # Payloads + expected responses
 ├── helpers/                    # squareDataCreation, batch generator, scenarios
 ├── scripts/                    # Runners, report generators, batch generators
@@ -111,23 +121,47 @@ RESUME=Batch5PayMapDefault env NODE_ENV=dev SETUP=E2E_Square PBI=SQNS \
 
 State is saved in `.test-state/{TAG}.json`.
 
-## Return / Refund suites
+## Return / Refund suites (R0–R11 · 205 scenarios)
 
-Square Return → NetSuite Cash Refund batches (order leg + refund leg):
+Square Return → NetSuite Cash Refund batches. Each scenario is a 2-leg flow: **order leg**
+(create Square order → NS Cash Sale) + **refund leg** (create Square refund → NS Cash Refund),
+both validated via the NS proxy.
 
-| Batch | TAG | File |
-|-------|-----|------|
-| Smoke | `return_smoke` | `testcases/Square_Suite/Return_Import/BatchR0_ReturnSmoke.json` |
-| R1 | `batchr1` | `testcases/Square_Suite/Return_Import/BatchR1_SingleLineAmount.json` |
-| R2 | `batchr2` | `testcases/Square_Suite/Return_Import/BatchR2_MultiLinePartial.json` |
+| Batch | TAG | Theme | Scenarios |
+|-------|-----|-------|----------:|
+| R0 | `return_smoke` | Smoke — single/two-line, full/partial, disc/tip/qty/modifier | 10 |
+| R1 | `batchr1` | Full & partial **amount**, single line | 22 |
+| R2 | `batchr2` | Multi-line, partial line, multi-qty | 24 |
+| R3 | `batchr3` | Line + cart + order discount permutations | 20 |
+| R4 | `batchr4` | Tips & tip+discount permutations | 18 |
+| R5 | `batchr5` | Tax incl/excl, single & multi-line, multi-tax | 22 |
+| R6 | `batchr6` | Modifiers & custom-amount refunds | 16 |
+| R7 | `batchr7` | Multi-quantity / unit-level refunds | 18 |
+| R8 | `batchr8` | Customer / on-demand / idempotency | 16 |
+| R9 | `batchr9` | Lot / serial / inventory detail | 15 |
+| R10 | `batchr10` | Multi-payment / gift-card / check | 12 |
+| R11 | `batchr11` | Settings / variance / export-flag | 12 |
+| | | **Total** | **205** |
 
 ```bash
-npm run square:return            # all return batches
-node scripts/squareIoExportPreflight.js   # verify IO token can index refunds
+# Run a single refund batch (regenerates fixtures, runs order+refund legs)
+./scripts/runSquareReturnBatch7.sh          # e.g. R7
+SQUARE_REFUND_SKIP_INDEX=true ./scripts/runSquareReturnSmoke.sh   # R0 smoke
+
+# Run a curated 5-TC cross-section (good for a live demo, ~12 min)
+env NODE_ENV=dev SETUP=E2E_Square PBI=SQNS SQUARE_REFUND_SKIP_INDEX=true \
+  SUITE=Square_Suite/Return_Import TAG=return_smoke \
+  npx jest --config ./jest.config.js --runInBand --forceExit -t "BatchR0Smoke0[12468]"
 ```
 
-Refunds require the Integrator.io API token to have **connection export/import**
-permission (otherwise IO returns `422 not valid Refunds`). Run the preflight first.
+**Refund indexing:** refunds normally require the Integrator.io API token to have
+**connection export/import** permission (else IO returns `422 not valid Refunds`). The suites
+default to `SQUARE_REFUND_SKIP_INDEX=true`, which relies on the refund flow's scheduled pull
+instead of an on-demand export — so no special token permission is needed.
+
+**Known gaps (documented in generators):** multi-tender FULL refunds (R10 — harness refunds only
+the CHECK leg), combined line+cart discount per-line allocation (R9 — non-deterministic), and a
+few R11 settings/negative-path cases need harness/validator extensions.
 
 ## Publish results to Zephyr Scale
 
