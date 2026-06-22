@@ -1,0 +1,21 @@
+{
+  "Amount (Transaction Total)": "-19.90",
+  "etail_refund_line_items": [
+    {
+      "Item": "process.env[DEFAULTS.PRODUCTS.0.SKU]",
+      "Quantity": "-1",
+      "Amount (Foreign Currency)": "-19.90"
+    }
+  ],
+  "etail_refund_adjustments": [],
+  "eTail Refund Exported": "F",
+  "eTail Order Id": "{{PRET16908squareOrderId}}",
+  "eTail Channel": "process.env[AUT.SH]",
+  "Payment Method": "",
+  "Location": "process.env[NS_DEFAULT.LOCATION1]",
+  "eTail Order Total Variance": "0",
+  "eTail Discount Total Variance": "0",
+  "eTail Tax Total Variance": "0",
+  "eTail Ship Total Variance": "0",
+  "eTail Cancelled Order Exported": null
+}
